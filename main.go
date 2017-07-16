@@ -1,5 +1,13 @@
 package main
 
+import (
+	"fmt"
+	"log"
+	"os"
+
+	"github.com/mitchellh/cli"
+)
+
 var (
 	// Name is application name
 	Name string
@@ -10,4 +18,13 @@ var (
 )
 
 func main() {
+	c := cli.NewCLI(Name, fmt.Sprintf("%s (%s)", Version, Revision))
+	c.Args = os.Args[1:]
+
+	exitStatus, err := c.Run()
+	if err != nil {
+		log.Println(err)
+	}
+
+	os.Exit(exitStatus)
 }

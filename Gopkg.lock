@@ -3,9 +3,33 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/armon/go-radix"
+  packages = ["."]
+  revision = "4239b77079c7b5d1243b7b4736304ce8ddb6f0f2"
+
+[[projects]]
+  name = "github.com/bgentry/speakeasy"
+  packages = ["."]
+  revision = "4aabc24848ce5fd31929f7d1e4ea74d3709c14cd"
+  version = "v0.1.0"
+
+[[projects]]
+  branch = "master"
   name = "github.com/golang/lint"
   packages = [".","golint"]
   revision = "c5fb716d6688a859aae56d26d3e6070808df29f7"
+
+[[projects]]
+  name = "github.com/mattn/go-isatty"
+  packages = ["."]
+  revision = "fc9e8d8ef48496124e79ae0df75490096eccf6fe"
+  version = "v0.0.2"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/mitchellh/cli"
+  packages = ["."]
+  revision = "b481eac70eea3ad671b7c360a013f89bb759b252"
 
 [[projects]]
   name = "github.com/mitchellh/gox"
@@ -21,6 +45,12 @@
 
 [[projects]]
   branch = "master"
+  name = "golang.org/x/sys"
+  packages = ["unix"]
+  revision = "4cd6d1a821c7175768725b55ca82f14683a29ea4"
+
+[[projects]]
+  branch = "master"
   name = "golang.org/x/tools"
   packages = ["go/gcexportdata","go/gcimporter15","go/types/typeutil"]
   revision = "d78e5d2552f0118165e0525719c6ab6b9eaebc4e"
@@ -28,6 +58,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "746a722f8c4ed84dfdb9978543bf200ac39be9e0344b62625f95c83c106dfbcb"
+  inputs-digest = "89ed75a8dc9b6d46adb41acbb928a12117f809b8c57f2c3887f9b3fc1d569790"
   solver-name = "gps-cdcl"
   solver-version = 1
