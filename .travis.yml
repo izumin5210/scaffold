@@ -1,0 +1,17 @@
+language: go
+
+go:
+  - 1.8
+
+before_install:
+  - go get github.com/mattn/goveralls
+  - go get github.com/tcnksm/ghr
+
+install:
+  - make deps
+
+script:
+  - make test-ci
+
+after_success:
+  - test $TRAVIS_BRANCH = "master" && make release
