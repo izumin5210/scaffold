@@ -17,6 +17,11 @@ clobber: clean
 
 .PHONY: deps
 deps:
+	@go get github.com/golang/mock/mockgen
+	@go get github.com/golang/lint/golint
+	@go get github.com/mitchellh/gox
+	@go get github.com/mattn/goveralls
+	@go get github.com/tcnksm/ghr
 	@go get github.com/golang/dep/cmd/dep
 	dep ensure
 
@@ -39,12 +44,10 @@ test: generate lint
 .PHONY: lint
 lint:
 	go vet $(PACKAGE_DIRS)
-	@go get github.com/golang/lint/golint
 	echo $(PACKAGE_DIRS) | xargs -n 1 golint -set_exit_status
 
 .PHONY: package
 package: clean deps
-	@go get github.com/mitchellh/gox
 	gox \
 		$(LDFLAGS) \
 		-parallel=5 \
