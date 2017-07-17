@@ -23,4 +23,5 @@
 required = [
   "github.com/mitchellh/gox",
   "github.com/golang/lint/golint",
+  "github.com/golang/mock/mockgen"
 ]

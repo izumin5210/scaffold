@@ -20,6 +20,12 @@
   revision = "c5fb716d6688a859aae56d26d3e6070808df29f7"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/golang/mock"
+  packages = ["gomock","mockgen","mockgen/model"]
+  revision = "93f6609a15b7de76bd49259f1f9a6b58df358936"
+
+[[projects]]
   name = "github.com/mattn/go-isatty"
   packages = ["."]
   revision = "fc9e8d8ef48496124e79ae0df75490096eccf6fe"
@@ -76,6 +82,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "6518b2cc6c1178191c7cd8ccfec101c3a5beaaa3b02ce2445f732ab192c3a1d0"
+  inputs-digest = "0e287181bacf58396ffba7545114b3abeb100e5bbeb98864f14fe69bc17f17a9"
   solver-name = "gps-cdcl"
   solver-version = 1

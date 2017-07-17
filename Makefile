@@ -2,7 +2,7 @@ NAME := scaffold
 VERSION := 0.0.1
 REVISION := $(shell git describe --always)
 LDFLAGS := -ldflags="-s -w -X \"main.Name=$(NAME)\" -X \"main.Version=$(VERSION)\" -X \"main.Revision=$(REVISION)\" -extldflags \"-static\""
-PACKAGE_DIRS   := $(shell go list ./... 2> /dev/null | grep -v /vendor/)
+PACKAGE_DIRS := $(shell go list ./... 2> /dev/null | grep -v /vendor | grep -v /mock)
 
 XC_ARCH := 386 amd64
 XC_OS := darwin linux windows
@@ -20,16 +20,20 @@ deps:
 	@go get github.com/golang/dep/cmd/dep
 	dep ensure
 
+.PHONY: generate
+generate:
+	go generate $(PACKAGE_DIRS)
+
 .PHONY: build
-build:
+build: generate
 	go build $(LDFLAGS) -o bin/$(NAME)
 
 .PHONY: test-ci
-test-ci: lint
+test-ci: generate lint
 	goveralls -service=travis-ci
 
 .PHONY: test
-test: lint
+test: generate lint
 	go test -v -timeout=30s -parallel=4 $(PACKAGE_DIRS)
 
 .PHONY: lint
