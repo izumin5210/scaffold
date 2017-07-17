@@ -2,6 +2,7 @@ NAME := scaffold
 VERSION := 0.0.1
 REVISION := $(shell git describe --always)
 LDFLAGS := -ldflags="-s -w -X \"main.Name=$(NAME)\" -X \"main.Version=$(VERSION)\" -X \"main.Revision=$(REVISION)\" -extldflags \"-static\""
+PACKAGE_DIRS   := $(shell go list ./... 2> /dev/null | grep -v /vendor/)
 
 XC_ARCH := 386 amd64
 XC_OS := darwin linux windows
@@ -24,25 +25,18 @@ build:
 	go build $(LDFLAGS) -o bin/$(NAME)
 
 .PHONY: test-ci
-test-ci: lint vet test-race
+test-ci: lint
 	goveralls -service=travis-ci
 
 .PHONY: test
-test: lint vet test-race
-	go test -v -timeout=30s -parallel=4 ./...
-
-.PHONY: test-race
-test-race:
-	go test -race .
-
-.PHONY: vet
-vet:
-	go vet *.go
+test: lint
+	go test -v -timeout=30s -parallel=4 $(PACKAGE_DIRS)
 
 .PHONY: lint
 lint:
+	go vet $(PACKAGE_DIRS)
 	@go get github.com/golang/lint/golint
-	golint ./...
+	echo $(PACKAGE_DIRS) | xargs -n 1 golint -set_exit_status
 
 .PHONY: package
 package: clean deps
