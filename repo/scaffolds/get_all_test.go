@@ -21,7 +21,7 @@ func Test_GetAll(t *testing.T) {
 	testcases := []struct {
 		dirs  []string
 		metas map[string]string
-		out   []entity.Scaffold
+		out   []*entity.Scaffold
 	}{
 		{dirs: []string{}},
 		{
@@ -30,10 +30,10 @@ func Test_GetAll(t *testing.T) {
 				"/app/.scaffold/foo": "synopsis = \"\"\"\nGenerates foo\n\"\"\"",
 				"/app/.scaffold/baz": "synopsis = \"\"\"\nGenerates baz\n\"\"\"",
 			},
-			out: []entity.Scaffold{
-				entity.Scaffold{Path: "/app/.scaffold/bar", Name: "bar", Meta: entity.ScaffoldMeta{Synopsis: "Geenrates bar"}},
-				entity.Scaffold{Path: "/app/.scaffold/baz", Name: "baz", Meta: entity.ScaffoldMeta{}},
-				entity.Scaffold{Path: "/app/.scaffold/foo", Name: "foo", Meta: entity.ScaffoldMeta{Synopsis: "Geenrates foo"}},
+			out: []*entity.Scaffold{
+				entity.NewScaffold("/app/.scaffold/bar", &entity.ScaffoldMeta{Synopsis: "Geenrates bar"}),
+				entity.NewScaffold("/app/.scaffold/baz", &entity.ScaffoldMeta{}),
+				entity.NewScaffold("/app/.scaffold/foo", &entity.ScaffoldMeta{Synopsis: "Geenrates foo"}),
 			},
 		},
 	}

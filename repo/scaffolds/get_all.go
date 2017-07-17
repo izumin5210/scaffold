@@ -20,11 +20,7 @@ func (r *repo) GetAll() ([]*entity.Scaffold, error) {
 		if err == nil {
 			toml.Decode(string(data), &meta)
 		}
-		scaffolds = append(scaffolds, &entity.Scaffold{
-			Path: dir,
-			Name: path.Base(dir),
-			Meta: meta,
-		})
+		scaffolds = append(scaffolds, entity.NewScaffold(dir, &meta))
 	}
 	return scaffolds, nil
 }
