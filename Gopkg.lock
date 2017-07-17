@@ -2,6 +2,12 @@
 
 
 [[projects]]
+  name = "github.com/BurntSushi/toml"
+  packages = ["."]
+  revision = "b26d9c308763d68093482582cea63d69be07a0f0"
+  version = "v0.3.0"
+
+[[projects]]
   branch = "master"
   name = "github.com/armon/go-radix"
   packages = ["."]
@@ -82,6 +88,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "0e287181bacf58396ffba7545114b3abeb100e5bbeb98864f14fe69bc17f17a9"
+  inputs-digest = "d28d643e4d94f6d0f062b571bfca550647ffbae69f80a1d5683045772c024a02"
   solver-name = "gps-cdcl"
   solver-version = 1
