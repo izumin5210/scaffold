@@ -3,6 +3,8 @@ package scaffolds
 import (
 	"path"
 
+	"path/filepath"
+
 	"github.com/BurntSushi/toml"
 	"github.com/izumin5210/scaffold/entity"
 	"github.com/pkg/errors"
@@ -15,12 +17,16 @@ func (r *repo) GetAll() ([]*entity.Scaffold, error) {
 	}
 	var scaffolds []*entity.Scaffold
 	for _, dir := range dirs {
+		scPath, err := filepath.Abs(dir)
+		if err != nil {
+			return nil, err
+		}
 		var meta entity.ScaffoldMeta
-		data, err := r.context.FS.ReadFile(path.Join(dir, "meta.toml"))
+		data, err := r.context.FS.ReadFile(path.Join(scPath, "meta.toml"))
 		if err == nil {
 			toml.Decode(string(data), &meta)
 		}
-		scaffolds = append(scaffolds, entity.NewScaffold(dir, &meta))
+		scaffolds = append(scaffolds, entity.NewScaffold(scPath, &meta))
 	}
 	return scaffolds, nil
 }
