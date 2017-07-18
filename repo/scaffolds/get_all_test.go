@@ -1,4 +1,4 @@
-package repo
+package scaffolds
 
 import (
 	"path"
@@ -6,17 +6,17 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/izumin5210/scaffold/entity"
-	mock "github.com/izumin5210/scaffold/infra/mock"
+	"github.com/izumin5210/scaffold/infra/fs"
 	"github.com/pkg/errors"
 )
 
 func Test_GetAll(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	mockFS := mock.NewMockFS(ctrl)
+	mockFS := fs.NewMockFS(ctrl)
 
-	context := entity.Context{ScaffoldsPath: "/app/.scaffold", FS: mockFS}
-	repo := NewScaffoldsRepository(context)
+	context := &entity.Context{ScaffoldsPath: "/app/.scaffold", FS: mockFS}
+	repo := NewRepository(context)
 
 	testcases := []struct {
 		dirs  []string

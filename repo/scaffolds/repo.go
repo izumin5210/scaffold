@@ -1,19 +1,19 @@
-package repo
+package scaffolds
 
 import (
 	"github.com/izumin5210/scaffold/entity"
 )
 
-// ScaffoldsRepository is a repository for scaffolds
-type ScaffoldsRepository interface {
+// Repository is a repository for scaffolds
+type Repository interface {
 	GetAll() ([]*entity.Scaffold, error)
 }
 
 type repo struct {
-	context entity.Context
+	context *entity.Context
 }
 
-// NewScaffoldsRepository returns a ScaffoldsRepository implementation
-func NewScaffoldsRepository(context entity.Context) ScaffoldsRepository {
+// NewRepository returns a Repository implementation
+func NewRepository(context *entity.Context) Repository {
 	return &repo{context: context}
 }

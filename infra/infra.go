@@ -1,3 +1,3 @@
-//go:generate mockgen -source=fs/fs.go -package infra -destination=mock/fs.go
+//go:generate mockgen -source=fs/fs.go -package fs -destination=fs/fs_mock.go
 
 package infra

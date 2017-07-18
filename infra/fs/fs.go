@@ -1,4 +1,4 @@
-package infra
+package fs
 
 import (
 	"github.com/pkg/errors"
@@ -15,8 +15,8 @@ type fs struct {
 	afs afero.Afero
 }
 
-// NewFS returns FS instance using the os package
-func NewFS() FS {
+// New returns FS instance using the os package
+func New() FS {
 	return &fs{afs: afero.Afero{Fs: afero.NewOsFs()}}
 }
 
