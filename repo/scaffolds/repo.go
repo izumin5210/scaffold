@@ -2,6 +2,7 @@ package scaffolds
 
 import (
 	"github.com/izumin5210/scaffold/entity"
+	"github.com/izumin5210/scaffold/infra/fs"
 )
 
 // Repository is a repository for scaffolds
@@ -10,10 +11,11 @@ type Repository interface {
 }
 
 type repo struct {
-	context *entity.Context
+	path string
+	fs   fs.FS
 }
 
 // NewRepository returns a Repository implementation
-func NewRepository(context *entity.Context) Repository {
-	return &repo{context: context}
+func NewRepository(path string, fs fs.FS) Repository {
+	return &repo{path: path, fs: fs}
 }

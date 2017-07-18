@@ -11,7 +11,7 @@ import (
 )
 
 func (r *repo) GetAll() ([]*entity.Scaffold, error) {
-	dirs, err := r.context.FS.GetDirs(r.context.ScaffoldsPath)
+	dirs, err := r.fs.GetDirs(r.path)
 	if err != nil {
 		return nil, errors.Wrapf(err, "Failed to get directories from %q", err)
 	}
@@ -22,7 +22,7 @@ func (r *repo) GetAll() ([]*entity.Scaffold, error) {
 			return nil, err
 		}
 		var meta entity.ScaffoldMeta
-		data, err := r.context.FS.ReadFile(path.Join(scPath, "meta.toml"))
+		data, err := r.fs.ReadFile(path.Join(scPath, "meta.toml"))
 		if err == nil {
 			toml.Decode(string(data), &meta)
 		}
