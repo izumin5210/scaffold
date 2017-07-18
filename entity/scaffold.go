@@ -6,6 +6,7 @@ type Scaffold struct {
 	*ScaffoldMeta
 }
 
+// NewScaffold reeturns a new scaffold object
 func NewScaffold(path string, meta *ScaffoldMeta) *Scaffold {
 	return &Scaffold{
 		Directory:    EmptyDirectory(path),
@@ -13,6 +14,7 @@ func NewScaffold(path string, meta *ScaffoldMeta) *Scaffold {
 	}
 }
 
+// Name returns this scaffold name
 func (s *Scaffold) Name() string {
 	if len(s.ScaffoldMeta.Name) > 0 {
 		return s.ScaffoldMeta.Name
