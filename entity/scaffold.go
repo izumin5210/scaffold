@@ -9,7 +9,7 @@ type Scaffold struct {
 // NewScaffold reeturns a new scaffold object
 func NewScaffold(path string, meta *ScaffoldMeta) *Scaffold {
 	return &Scaffold{
-		Directory:    EmptyDirectory(path),
+		Directory:    EmptyDirectory(path, true),
 		ScaffoldMeta: meta,
 	}
 }

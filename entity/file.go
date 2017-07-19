@@ -6,6 +6,6 @@ type File struct {
 }
 
 // NewFile returns a file object
-func NewFile(path string) *File {
-	return &File{Entry: &Entry{path: path}}
+func NewFile(path string, existing bool) *File {
+	return &File{Entry: &Entry{path: path, existing: existing}}
 }

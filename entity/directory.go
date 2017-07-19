@@ -7,13 +7,13 @@ type Directory struct {
 }
 
 // NewDirectory returns a directory object
-func NewDirectory(path string, entries []*Entry) *Directory {
-	return &Directory{Entry: &Entry{path: path}, entries: entries}
+func NewDirectory(path string, existing bool, entries []*Entry) *Directory {
+	return &Directory{Entry: &Entry{path: path, existing: existing}, entries: entries}
 }
 
 // EmptyDirectory returns an empty directory object
-func EmptyDirectory(path string) *Directory {
-	return &Directory{Entry: &Entry{path: path}}
+func EmptyDirectory(path string, existing bool) *Directory {
+	return &Directory{Entry: &Entry{path: path, existing: existing}}
 }
 
 // IsDir returns true if this entry is a directory
