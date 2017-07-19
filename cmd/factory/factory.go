@@ -9,6 +9,7 @@ import (
 type factory struct {
 }
 
+// New reutnrs a new object implemented cmd.Factory
 func New() cmd.Factory {
 	return &factory{}
 }
