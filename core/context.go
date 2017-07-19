@@ -1,6 +1,8 @@
 package core
 
 import (
+	"github.com/izumin5210/scaffold/cmd"
+	"github.com/izumin5210/scaffold/cmd/factory"
 	"github.com/izumin5210/scaffold/infra/fs"
 	"github.com/izumin5210/scaffold/repo/scaffolds"
 )
@@ -9,6 +11,7 @@ import (
 type Context interface {
 	Path() string
 	Repository() scaffolds.Repository
+	CommandFactoryFactory() cmd.Factory
 }
 
 type context struct {
@@ -31,4 +34,8 @@ func (c *context) Repository() scaffolds.Repository {
 		c.repo = scaffolds.NewRepository(c.path, c.fs)
 	}
 	return c.repo
+}
+
+func (c *context) CommandFactoryFactory() cmd.Factory {
+	return factory.New()
 }
