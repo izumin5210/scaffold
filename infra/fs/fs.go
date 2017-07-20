@@ -1,6 +1,8 @@
 package fs
 
 import (
+	"os"
+
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 )
@@ -9,6 +11,7 @@ import (
 type FS interface {
 	GetDirs(path string) ([]string, error)
 	ReadFile(path string) ([]byte, error)
+	Walk(path string, cb func(path string, dir bool, err error) error) error
 }
 
 type fs struct {
@@ -34,6 +37,12 @@ func (f *fs) GetDirs(name string) ([]string, error) {
 	}
 
 	return dirs, nil
+}
+
+func (f *fs) Walk(root string, cb func(path string, dir bool, err error) error) error {
+	return f.afs.Walk(root, func(path string, info os.FileInfo, err error) error {
+		return cb(path, info.IsDir(), err)
+	})
 }
 
 func (f *fs) ReadFile(name string) ([]byte, error) {

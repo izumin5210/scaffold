@@ -55,3 +55,15 @@ func (_m *MockFS) ReadFile(path string) ([]byte, error) {
 func (_mr *MockFSMockRecorder) ReadFile(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ReadFile", arg0)
 }
+
+// Walk mocks base method
+func (_m *MockFS) Walk(path string, cb func(string, bool, error) error) error {
+	ret := _m.ctrl.Call(_m, "Walk", path, cb)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Walk indicates an expected call of Walk
+func (_mr *MockFSMockRecorder) Walk(arg0, arg1 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "Walk", arg0, arg1)
+}

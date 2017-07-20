@@ -47,3 +47,50 @@ func Test_ReadFile(t *testing.T) {
 		t.Errorf("ReadFile() returns %s, but expected %v", actual, expected)
 	}
 }
+
+func Test_Walk(t *testing.T) {
+	afs := afero.Afero{Fs: afero.NewMemMapFs()}
+	fs := &fs{afs: afs}
+
+	afs.Mkdir("/app", os.ModeDir)
+	afs.Mkdir("/app/foo", os.ModeDir)
+	afs.Mkdir("/app/bar", os.ModeDir)
+	afs.WriteFile("/app/baz", []byte("baz file"), 0666)
+	afs.WriteFile("/app/bar/quz", []byte("quz file"), 0666)
+
+	expects := map[string]bool{
+		"/app":         true,
+		"/app/foo":     true,
+		"/app/bar":     true,
+		"/app/baz":     false,
+		"/app/bar/quz": false,
+	}
+	actuals := map[string]bool{}
+
+	cb := func(path string, dir bool, err error) error {
+		if err != nil {
+			t.Errorf("Unexpected error %v", err)
+			return err
+		}
+		actuals[path] = dir
+		return nil
+	}
+
+	err := fs.Walk("/app", cb)
+
+	if err != nil {
+		t.Errorf("Unexpected error %v", err)
+	}
+
+	for path, expected := range expects {
+		if actual, ok := actuals[path]; !ok {
+			t.Errorf("%s was not visited", path)
+		} else if actual != expected {
+			if actual {
+				t.Errorf("%s type was incorrect, got: directory, want: file", path)
+			} else {
+				t.Errorf("%s type was incorrect, got: file, want: directory", path)
+			}
+		}
+	}
+}
