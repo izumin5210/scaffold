@@ -27,3 +27,13 @@ func (e *Entry) IsDir() bool {
 func (e *Entry) Exists() bool {
 	return e.existing
 }
+
+// IsParentOf returns true if the entry is parent of a given entry
+func (e *Entry) IsParentOf(other *Entry) bool {
+	return e.Path() == path.Dir(other.Path())
+}
+
+// IsChildOf returns true if the entry is child of a given entry
+func (e *Entry) IsChildOf(other *Entry) bool {
+	return other.IsParentOf(e)
+}
