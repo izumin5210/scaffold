@@ -3,21 +3,22 @@ package core
 import (
 	"github.com/izumin5210/scaffold/cmd"
 	"github.com/izumin5210/scaffold/cmd/factory"
+	"github.com/izumin5210/scaffold/domain/scaffold"
+	scaffoldrepo "github.com/izumin5210/scaffold/domain/scaffold/repo"
 	"github.com/izumin5210/scaffold/infra/fs"
-	"github.com/izumin5210/scaffold/repo/scaffolds"
 )
 
 // Context is container storing configurations
 type Context interface {
 	Path() string
-	Repository() scaffolds.Repository
+	Repository() scaffold.Repository
 	CommandFactoryFactory() cmd.Factory
 }
 
 type context struct {
 	path string
 	fs   fs.FS
-	repo scaffolds.Repository
+	repo scaffold.Repository
 }
 
 // NewContext creates a new context object
@@ -29,9 +30,9 @@ func (c *context) Path() string {
 	return c.path
 }
 
-func (c *context) Repository() scaffolds.Repository {
+func (c *context) Repository() scaffold.Repository {
 	if c.repo == nil {
-		c.repo = scaffolds.NewRepository(c.path, c.fs)
+		c.repo = scaffoldrepo.New(c.path, c.fs)
 	}
 	return c.repo
 }

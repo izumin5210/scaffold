@@ -1,18 +1,18 @@
 package cmd
 
 import (
-	"github.com/izumin5210/scaffold/entity"
+	"github.com/izumin5210/scaffold/domain/scaffold"
 	"github.com/mitchellh/cli"
 )
 
 // CreateScaffold represents a command object for scaffolding templates
 // It can be treated as an mitchellh/cli.Command
 type createScaffold struct {
-	scaffold *entity.Scaffold
+	scaffold *scaffold.Scaffold
 }
 
 // NewCreateScaffoldCommand creates a command for creating scaffold
-func NewCreateScaffoldCommand(sc *entity.Scaffold) cli.Command {
+func NewCreateScaffoldCommand(sc *scaffold.Scaffold) cli.Command {
 	return &createScaffold{scaffold: sc}
 }
 

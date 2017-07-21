@@ -5,25 +5,24 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/izumin5210/scaffold/cmd/factory"
-	"github.com/izumin5210/scaffold/entity"
-	"github.com/izumin5210/scaffold/repo/scaffolds"
+	"github.com/izumin5210/scaffold/domain/scaffold"
 	"github.com/mitchellh/cli"
 )
 
 func Test_GetScaffoldCommandUseCase_Perform(t *testing.T) {
 	ctrl := gomock.NewController(t)
-	repo := scaffolds.NewMockRepository(ctrl)
+	repo := scaffold.NewMockRepository(ctrl)
 	factory := factory.NewMockFactory(ctrl)
 	u := &getScaffoldCommandUseCase{repo: repo, factory: factory}
 
 	testcases := []struct {
-		scaffolds []*entity.Scaffold
+		scaffolds []*scaffold.Scaffold
 	}{
-		{scaffolds: []*entity.Scaffold{}},
-		{scaffolds: []*entity.Scaffold{
-			entity.NewScaffold("/app/foo", &entity.ScaffoldMeta{}),
-			entity.NewScaffold("/app/bar", &entity.ScaffoldMeta{}),
-			entity.NewScaffold("/app/baz", &entity.ScaffoldMeta{}),
+		{scaffolds: []*scaffold.Scaffold{}},
+		{scaffolds: []*scaffold.Scaffold{
+			scaffold.NewScaffold("/app/foo", &scaffold.Meta{}),
+			scaffold.NewScaffold("/app/bar", &scaffold.Meta{}),
+			scaffold.NewScaffold("/app/baz", &scaffold.Meta{}),
 		}},
 	}
 

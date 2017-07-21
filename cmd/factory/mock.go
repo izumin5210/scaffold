@@ -5,7 +5,7 @@ package factory
 
 import (
 	gomock "github.com/golang/mock/gomock"
-	entity "github.com/izumin5210/scaffold/entity"
+	scaffold "github.com/izumin5210/scaffold/domain/scaffold"
 	cli "github.com/mitchellh/cli"
 )
 
@@ -33,7 +33,7 @@ func (_m *MockFactory) EXPECT() *MockFactoryMockRecorder {
 }
 
 // CreateCreateScaffoldCommandFactory mocks base method
-func (_m *MockFactory) CreateCreateScaffoldCommandFactory(sc *entity.Scaffold) cli.CommandFactory {
+func (_m *MockFactory) CreateCreateScaffoldCommandFactory(sc *scaffold.Scaffold) cli.CommandFactory {
 	ret := _m.ctrl.Call(_m, "CreateCreateScaffoldCommandFactory", sc)
 	ret0, _ := ret[0].(cli.CommandFactory)
 	return ret0

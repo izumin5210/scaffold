@@ -2,7 +2,7 @@ package factory
 
 import (
 	"github.com/izumin5210/scaffold/cmd"
-	"github.com/izumin5210/scaffold/entity"
+	"github.com/izumin5210/scaffold/domain/scaffold"
 	"github.com/mitchellh/cli"
 )
 
@@ -14,7 +14,7 @@ func New() cmd.Factory {
 	return &factory{}
 }
 
-func (f *factory) CreateCreateScaffoldCommandFactory(sc *entity.Scaffold) cli.CommandFactory {
+func (f *factory) CreateCreateScaffoldCommandFactory(sc *scaffold.Scaffold) cli.CommandFactory {
 	return func() (cli.Command, error) {
 		return cmd.NewCreateScaffoldCommand(sc), nil
 	}

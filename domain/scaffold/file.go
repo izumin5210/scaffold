@@ -1,4 +1,4 @@
-package entity
+package scaffold
 
 // File represents a file entry of filesystem
 type File struct {

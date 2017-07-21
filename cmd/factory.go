@@ -3,11 +3,11 @@
 package cmd
 
 import (
-	"github.com/izumin5210/scaffold/entity"
+	"github.com/izumin5210/scaffold/domain/scaffold"
 	"github.com/mitchellh/cli"
 )
 
 // Factory provides factory functions for generating cli.CommandFactory
 type Factory interface {
-	CreateCreateScaffoldCommandFactory(sc *entity.Scaffold) cli.CommandFactory
+	CreateCreateScaffoldCommandFactory(sc *scaffold.Scaffold) cli.CommandFactory
 }
