@@ -16,10 +16,10 @@ func Test_GetScaffoldCommandUseCase_Perform(t *testing.T) {
 	u := &getScaffoldCommandUseCase{repo: repo, factory: factory}
 
 	testcases := []struct {
-		scaffolds []*scaffold.Scaffold
+		scaffolds []scaffold.Scaffold
 	}{
-		{scaffolds: []*scaffold.Scaffold{}},
-		{scaffolds: []*scaffold.Scaffold{
+		{scaffolds: []scaffold.Scaffold{}},
+		{scaffolds: []scaffold.Scaffold{
 			scaffold.NewScaffold("/app/foo", &scaffold.Meta{}),
 			scaffold.NewScaffold("/app/bar", &scaffold.Meta{}),
 			scaffold.NewScaffold("/app/baz", &scaffold.Meta{}),

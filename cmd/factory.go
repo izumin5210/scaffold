@@ -9,5 +9,5 @@ import (
 
 // Factory provides factory functions for generating cli.CommandFactory
 type Factory interface {
-	CreateCreateScaffoldCommandFactory(sc *scaffold.Scaffold) cli.CommandFactory
+	CreateCreateScaffoldCommandFactory(sc scaffold.Scaffold) cli.CommandFactory
 }

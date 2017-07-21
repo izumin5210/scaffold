@@ -33,7 +33,7 @@ func (_m *MockFactory) EXPECT() *MockFactoryMockRecorder {
 }
 
 // CreateCreateScaffoldCommandFactory mocks base method
-func (_m *MockFactory) CreateCreateScaffoldCommandFactory(sc *scaffold.Scaffold) cli.CommandFactory {
+func (_m *MockFactory) CreateCreateScaffoldCommandFactory(sc scaffold.Scaffold) cli.CommandFactory {
 	ret := _m.ctrl.Call(_m, "CreateCreateScaffoldCommandFactory", sc)
 	ret0, _ := ret[0].(cli.CommandFactory)
 	return ret0

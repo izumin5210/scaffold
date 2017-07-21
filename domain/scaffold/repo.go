@@ -4,5 +4,5 @@ package scaffold
 
 // Repository is a repository for scaffolds
 type Repository interface {
-	GetAll() ([]*Scaffold, error)
+	GetAll() ([]Scaffold, error)
 }

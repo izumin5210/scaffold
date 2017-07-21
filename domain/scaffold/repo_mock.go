@@ -31,9 +31,9 @@ func (_m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 }
 
 // GetAll mocks base method
-func (_m *MockRepository) GetAll() ([]*Scaffold, error) {
+func (_m *MockRepository) GetAll() ([]Scaffold, error) {
 	ret := _m.ctrl.Call(_m, "GetAll")
-	ret0, _ := ret[0].([]*Scaffold)
+	ret0, _ := ret[0].([]Scaffold)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

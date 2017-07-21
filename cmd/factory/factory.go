@@ -14,7 +14,7 @@ func New() cmd.Factory {
 	return &factory{}
 }
 
-func (f *factory) CreateCreateScaffoldCommandFactory(sc *scaffold.Scaffold) cli.CommandFactory {
+func (f *factory) CreateCreateScaffoldCommandFactory(sc scaffold.Scaffold) cli.CommandFactory {
 	return func() (cli.Command, error) {
 		return cmd.NewCreateScaffoldCommand(sc), nil
 	}

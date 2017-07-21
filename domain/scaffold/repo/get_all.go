@@ -10,12 +10,12 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (r *repo) GetAll() ([]*scaffold.Scaffold, error) {
+func (r *repo) GetAll() ([]scaffold.Scaffold, error) {
 	dirs, err := r.fs.GetDirs(r.path)
 	if err != nil {
 		return nil, errors.Wrapf(err, "Failed to get directories from %q", err)
 	}
-	var scaffolds []*scaffold.Scaffold
+	var scaffolds []scaffold.Scaffold
 	for _, dir := range dirs {
 		scPath, err := filepath.Abs(dir)
 		if err != nil {
