@@ -6,13 +6,12 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/izumin5210/scaffold/cmd/factory"
 	"github.com/izumin5210/scaffold/domain/scaffold"
-	"github.com/izumin5210/scaffold/domain/scaffold/repo"
 	"github.com/mitchellh/cli"
 )
 
 func Test_GetScaffoldCommandUseCase_Perform(t *testing.T) {
 	ctrl := gomock.NewController(t)
-	repo := repo.NewMockRepository(ctrl)
+	repo := scaffold.NewMockRepository(ctrl)
 	factory := factory.NewMockFactory(ctrl)
 	u := &getScaffoldCommandUseCase{repo: repo, factory: factory}
 

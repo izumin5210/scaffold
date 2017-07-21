@@ -2,7 +2,7 @@ package usecase
 
 import (
 	"github.com/izumin5210/scaffold/cmd"
-	"github.com/izumin5210/scaffold/repo/scaffolds"
+	"github.com/izumin5210/scaffold/domain/scaffold"
 )
 
 // GetScaffoldCommandUseCase is an use-case for loading scaffolds
@@ -11,13 +11,13 @@ type GetScaffoldCommandUseCase interface {
 }
 
 type getScaffoldCommandUseCase struct {
-	repo    scaffolds.Repository
+	repo    scaffold.Repository
 	factory cmd.Factory
 }
 
 // NewGetScaffoldCommandUseCase creates a GetUseCase instance
 func NewGetScaffoldCommandUseCase(
-	repo scaffolds.Repository,
+	repo scaffold.Repository,
 	factory cmd.Factory,
 ) GetScaffoldCommandUseCase {
 	return &getScaffoldCommandUseCase{repo: repo, factory: factory}

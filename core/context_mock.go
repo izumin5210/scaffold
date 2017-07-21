@@ -6,7 +6,7 @@ package core
 import (
 	gomock "github.com/golang/mock/gomock"
 	cmd "github.com/izumin5210/scaffold/cmd"
-	scaffolds "github.com/izumin5210/scaffold/repo/scaffolds"
+	scaffold "github.com/izumin5210/scaffold/domain/scaffold"
 )
 
 // MockContext is a mock of Context interface
@@ -45,9 +45,9 @@ func (_mr *MockContextMockRecorder) Path() *gomock.Call {
 }
 
 // Repository mocks base method
-func (_m *MockContext) Repository() scaffolds.Repository {
+func (_m *MockContext) Repository() scaffold.Repository {
 	ret := _m.ctrl.Call(_m, "Repository")
-	ret0, _ := ret[0].(scaffolds.Repository)
+	ret0, _ := ret[0].(scaffold.Repository)
 	return ret0
 }
 
