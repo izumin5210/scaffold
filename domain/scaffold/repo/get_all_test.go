@@ -30,9 +30,9 @@ func Test_GetAll(t *testing.T) {
 				"/app/.scaffold/baz": "synopsis = \"\"\"\nGenerates baz\n\"\"\"",
 			},
 			out: []*scaffold.Scaffold{
-				scaffold.NewScaffold("/app/.scaffold/bar", &scaffold.ScaffoldMeta{Synopsis: "Geenrates bar"}),
-				scaffold.NewScaffold("/app/.scaffold/baz", &scaffold.ScaffoldMeta{}),
-				scaffold.NewScaffold("/app/.scaffold/foo", &scaffold.ScaffoldMeta{Synopsis: "Geenrates foo"}),
+				scaffold.NewScaffold("/app/.scaffold/bar", &scaffold.Meta{Synopsis: "Geenrates bar"}),
+				scaffold.NewScaffold("/app/.scaffold/baz", &scaffold.Meta{}),
+				scaffold.NewScaffold("/app/.scaffold/foo", &scaffold.Meta{Synopsis: "Geenrates foo"}),
 			},
 		},
 	}

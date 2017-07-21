@@ -21,7 +21,7 @@ func (r *repo) GetAll() ([]*scaffold.Scaffold, error) {
 		if err != nil {
 			return nil, err
 		}
-		var meta scaffold.ScaffoldMeta
+		var meta scaffold.Meta
 		data, err := r.fs.ReadFile(path.Join(scPath, "meta.toml"))
 		if err == nil {
 			toml.Decode(string(data), &meta)
