@@ -1,13 +1,13 @@
-package scaffolds
+package repo
 
 import (
-	"github.com/izumin5210/scaffold/entity"
+	"github.com/izumin5210/scaffold/domain/scaffold"
 	"github.com/izumin5210/scaffold/infra/fs"
 )
 
 // Repository is a repository for scaffolds
 type Repository interface {
-	GetAll() ([]*entity.Scaffold, error)
+	GetAll() ([]*scaffold.Scaffold, error)
 }
 
 type repo struct {

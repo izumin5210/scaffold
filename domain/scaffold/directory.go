@@ -1,4 +1,4 @@
-package entity
+package scaffold
 
 // Directory represents a directory entry of filesystem
 type Directory struct {

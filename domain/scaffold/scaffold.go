@@ -1,4 +1,4 @@
-package entity
+package scaffold
 
 // Scaffold represents an executable subcommand
 type Scaffold struct {

@@ -1,11 +1,11 @@
-package scaffolds
+package repo
 
 import (
 	"path"
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	"github.com/izumin5210/scaffold/entity"
+	"github.com/izumin5210/scaffold/domain/scaffold"
 	"github.com/izumin5210/scaffold/infra/fs"
 	"github.com/pkg/errors"
 )
@@ -20,7 +20,7 @@ func Test_GetAll(t *testing.T) {
 	testcases := []struct {
 		dirs  []string
 		metas map[string]string
-		out   []*entity.Scaffold
+		out   []*scaffold.Scaffold
 	}{
 		{dirs: []string{}},
 		{
@@ -29,10 +29,10 @@ func Test_GetAll(t *testing.T) {
 				"/app/.scaffold/foo": "synopsis = \"\"\"\nGenerates foo\n\"\"\"",
 				"/app/.scaffold/baz": "synopsis = \"\"\"\nGenerates baz\n\"\"\"",
 			},
-			out: []*entity.Scaffold{
-				entity.NewScaffold("/app/.scaffold/bar", &entity.ScaffoldMeta{Synopsis: "Geenrates bar"}),
-				entity.NewScaffold("/app/.scaffold/baz", &entity.ScaffoldMeta{}),
-				entity.NewScaffold("/app/.scaffold/foo", &entity.ScaffoldMeta{Synopsis: "Geenrates foo"}),
+			out: []*scaffold.Scaffold{
+				scaffold.NewScaffold("/app/.scaffold/bar", &scaffold.ScaffoldMeta{Synopsis: "Geenrates bar"}),
+				scaffold.NewScaffold("/app/.scaffold/baz", &scaffold.ScaffoldMeta{}),
+				scaffold.NewScaffold("/app/.scaffold/foo", &scaffold.ScaffoldMeta{Synopsis: "Geenrates foo"}),
 			},
 		},
 	}
