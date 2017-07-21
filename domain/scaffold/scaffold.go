@@ -1,3 +1,5 @@
+//go:generate mockgen -source=scaffold.go -package scaffold -destination=scaffold_mock.go
+
 package scaffold
 
 // Scaffold represents an executable subcommand
