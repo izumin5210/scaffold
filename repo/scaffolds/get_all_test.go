@@ -61,9 +61,6 @@ func Test_GetAll(t *testing.T) {
 			if actual, expected := s, testcase.out[i]; actual != expected {
 				t.Errorf("GetAll()[%d] is %v, but expected %v", i, actual, expected)
 			}
-			if !s.Directory.Exists() {
-				t.Error("scaffold.Exists() returns false, but expected true")
-			}
 		}
 	}
 }
