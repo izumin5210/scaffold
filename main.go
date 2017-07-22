@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/izumin5210/scaffold/app"
+	"github.com/izumin5210/scaffold/app/cmd"
 	"github.com/izumin5210/scaffold/app/usecase"
 	"github.com/izumin5210/scaffold/infra/fs"
 	"github.com/mitchellh/cli"
@@ -23,9 +24,8 @@ var (
 
 func main() {
 	ctx := getContext()
-	u := usecase.NewGetScaffoldCommandUseCase(ctx.Repository(), ctx.CommandFactoryFactory())
 	// TODO: Should handle errors
-	scffCmds, _ := u.Perform()
+	scffCmds, _ := getScaffoldCommands(ctx)
 
 	c := cli.NewCLI(Name, fmt.Sprintf("%s (%s)", Version, Revision))
 	c.Args = os.Args[1:]
@@ -43,4 +43,13 @@ func getContext() app.Context {
 	// TODO: Should handle errors
 	cw, _ := os.Getwd()
 	return app.NewContext(cw, filepath.Join(cw, ".scaffold"), fs.New())
+}
+
+func getScaffoldCommands(ctx app.Context) (cmd.CommandFactories, error) {
+	u := usecase.NewGetScaffoldsUseCase(ctx.Repository())
+	scaffolds, err := u.Perform()
+	if err != nil {
+		return nil, err
+	}
+	return cmd.NewCreateScaffoldCommandFactories(ctx.Repository(), scaffolds), nil
 }

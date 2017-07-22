@@ -8,12 +8,30 @@ import (
 // CreateScaffold represents a command object for scaffolding templates
 // It can be treated as an mitchellh/cli.Command
 type createScaffold struct {
+	repo     scaffold.Repository
 	scaffold scaffold.Scaffold
 }
 
-// NewCreateScaffoldCommand creates a command for creating scaffold
-func NewCreateScaffoldCommand(sc scaffold.Scaffold) cli.Command {
-	return &createScaffold{scaffold: sc}
+// NewCreateScaffoldCommandFactory creates a command for creating scaffold
+func NewCreateScaffoldCommandFactory(
+	repo scaffold.Repository,
+	sc scaffold.Scaffold,
+) cli.CommandFactory {
+	return func() (cli.Command, error) {
+		return &createScaffold{repo: repo, scaffold: sc}, nil
+	}
+}
+
+// NewCreateScaffoldCommandFactories creates comands for creating scaffold
+func NewCreateScaffoldCommandFactories(
+	repo scaffold.Repository,
+	scaffolds []scaffold.Scaffold,
+) CommandFactories {
+	factories := CommandFactories{}
+	for _, sc := range scaffolds {
+		factories[sc.Name()] = NewCreateScaffoldCommandFactory(repo, sc)
+	}
+	return factories
 }
 
 // Synopsis returns a short synopsis of the command.

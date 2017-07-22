@@ -5,7 +5,6 @@ package app
 
 import (
 	gomock "github.com/golang/mock/gomock"
-	cmd "github.com/izumin5210/scaffold/app/cmd"
 	scaffold "github.com/izumin5210/scaffold/domain/scaffold"
 )
 
@@ -66,16 +65,4 @@ func (_m *MockContext) Repository() scaffold.Repository {
 // Repository indicates an expected call of Repository
 func (_mr *MockContextMockRecorder) Repository() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "Repository")
-}
-
-// CommandFactoryFactory mocks base method
-func (_m *MockContext) CommandFactoryFactory() cmd.Factory {
-	ret := _m.ctrl.Call(_m, "CommandFactoryFactory")
-	ret0, _ := ret[0].(cmd.Factory)
-	return ret0
-}
-
-// CommandFactoryFactory indicates an expected call of CommandFactoryFactory
-func (_mr *MockContextMockRecorder) CommandFactoryFactory() *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "CommandFactoryFactory")
 }
