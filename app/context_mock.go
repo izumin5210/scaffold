@@ -32,16 +32,28 @@ func (_m *MockContext) EXPECT() *MockContextMockRecorder {
 	return _m.recorder
 }
 
-// Path mocks base method
-func (_m *MockContext) Path() string {
-	ret := _m.ctrl.Call(_m, "Path")
+// RootPath mocks base method
+func (_m *MockContext) RootPath() string {
+	ret := _m.ctrl.Call(_m, "RootPath")
 	ret0, _ := ret[0].(string)
 	return ret0
 }
 
-// Path indicates an expected call of Path
-func (_mr *MockContextMockRecorder) Path() *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "Path")
+// RootPath indicates an expected call of RootPath
+func (_mr *MockContextMockRecorder) RootPath() *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "RootPath")
+}
+
+// TemplatesPath mocks base method
+func (_m *MockContext) TemplatesPath() string {
+	ret := _m.ctrl.Call(_m, "TemplatesPath")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// TemplatesPath indicates an expected call of TemplatesPath
+func (_mr *MockContextMockRecorder) TemplatesPath() *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "TemplatesPath")
 }
 
 // Repository mocks base method

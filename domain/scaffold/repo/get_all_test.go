@@ -15,7 +15,7 @@ func Test_GetAll(t *testing.T) {
 	defer ctrl.Finish()
 	mockFS := fs.NewMockFS(ctrl)
 
-	repo := New("/app/.scaffold", mockFS)
+	repo := New("/app", "/app/.scaffold", mockFS)
 
 	testcases := []struct {
 		dirs  []string

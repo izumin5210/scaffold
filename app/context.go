@@ -10,29 +10,35 @@ import (
 
 // Context is container storing configurations
 type Context interface {
-	Path() string
+	RootPath() string
+	TemplatesPath() string
 	Repository() scaffold.Repository
 	CommandFactoryFactory() cmd.Factory
 }
 
 type context struct {
-	path string
-	fs   fs.FS
-	repo scaffold.Repository
+	rootPath  string
+	tmplsPath string
+	fs        fs.FS
+	repo      scaffold.Repository
 }
 
 // NewContext creates a new context object
-func NewContext(path string, fs fs.FS) Context {
-	return &context{path: path, fs: fs}
+func NewContext(rootPath, tmplsPath string, fs fs.FS) Context {
+	return &context{rootPath: rootPath, tmplsPath: tmplsPath, fs: fs}
 }
 
-func (c *context) Path() string {
-	return c.path
+func (c *context) RootPath() string {
+	return c.rootPath
+}
+
+func (c *context) TemplatesPath() string {
+	return c.tmplsPath
 }
 
 func (c *context) Repository() scaffold.Repository {
 	if c.repo == nil {
-		c.repo = scaffoldrepo.New(c.path, c.fs)
+		c.repo = scaffoldrepo.New(c.rootPath, c.tmplsPath, c.fs)
 	}
 	return c.repo
 }

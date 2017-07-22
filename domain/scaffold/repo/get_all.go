@@ -11,7 +11,7 @@ import (
 )
 
 func (r *repo) GetAll() ([]scaffold.Scaffold, error) {
-	dirs, err := r.fs.GetDirs(r.path)
+	dirs, err := r.fs.GetDirs(r.tmplsPath)
 	if err != nil {
 		return nil, errors.Wrapf(err, "Failed to get directories from %q", err)
 	}

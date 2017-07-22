@@ -6,11 +6,12 @@ import (
 )
 
 type repo struct {
-	path string
-	fs   fs.FS
+	rootPath  string
+	tmplsPath string
+	fs        fs.FS
 }
 
 // New returns a Repository implementation
-func New(path string, fs fs.FS) scaffold.Repository {
-	return &repo{path: path, fs: fs}
+func New(rootPath, tmplsPath string, fs fs.FS) scaffold.Repository {
+	return &repo{rootPath: rootPath, tmplsPath: tmplsPath, fs: fs}
 }

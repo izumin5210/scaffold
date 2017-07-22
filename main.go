@@ -42,5 +42,5 @@ func main() {
 func getContext() app.Context {
 	// TODO: Should handle errors
 	cw, _ := os.Getwd()
-	return app.NewContext(filepath.Join(cw, ".scaffold"), fs.New())
+	return app.NewContext(cw, filepath.Join(cw, ".scaffold"), fs.New())
 }
