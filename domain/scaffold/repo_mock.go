@@ -42,3 +42,15 @@ func (_m *MockRepository) GetAll() ([]Scaffold, error) {
 func (_mr *MockRepositoryMockRecorder) GetAll() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetAll")
 }
+
+// Construct mocks base method
+func (_m *MockRepository) Construct(scff Scaffold, name string) error {
+	ret := _m.ctrl.Call(_m, "Construct", scff, name)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Construct indicates an expected call of Construct
+func (_mr *MockRepositoryMockRecorder) Construct(arg0, arg1 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "Construct", arg0, arg1)
+}

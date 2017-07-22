@@ -12,6 +12,10 @@ type FS interface {
 	GetDirs(path string) ([]string, error)
 	ReadFile(path string) ([]byte, error)
 	Walk(path string, cb func(path string, dir bool, err error) error) error
+	CreateDir(path string) error
+	CreateFile(path string, content string) error
+	Exists(path string) (bool, error)
+	DirExists(path string) (bool, error)
 }
 
 type fs struct {
@@ -47,4 +51,20 @@ func (f *fs) Walk(root string, cb func(path string, dir bool, err error) error) 
 
 func (f *fs) ReadFile(name string) ([]byte, error) {
 	return f.afs.ReadFile(name)
+}
+
+func (f *fs) CreateDir(path string) error {
+	return f.afs.Mkdir(path, os.ModeDir)
+}
+
+func (f *fs) CreateFile(path string, content string) error {
+	return f.afs.WriteFile(path, []byte(content), 0644)
+}
+
+func (f *fs) Exists(path string) (bool, error) {
+	return f.afs.Exists(path)
+}
+
+func (f *fs) DirExists(path string) (bool, error) {
+	return f.afs.DirExists(path)
 }

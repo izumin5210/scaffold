@@ -67,3 +67,53 @@ func (_m *MockFS) Walk(path string, cb func(string, bool, error) error) error {
 func (_mr *MockFSMockRecorder) Walk(arg0, arg1 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "Walk", arg0, arg1)
 }
+
+// CreateDir mocks base method
+func (_m *MockFS) CreateDir(path string) error {
+	ret := _m.ctrl.Call(_m, "CreateDir", path)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateDir indicates an expected call of CreateDir
+func (_mr *MockFSMockRecorder) CreateDir(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateDir", arg0)
+}
+
+// CreateFile mocks base method
+func (_m *MockFS) CreateFile(path string, content string) error {
+	ret := _m.ctrl.Call(_m, "CreateFile", path, content)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateFile indicates an expected call of CreateFile
+func (_mr *MockFSMockRecorder) CreateFile(arg0, arg1 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateFile", arg0, arg1)
+}
+
+// Exists mocks base method
+func (_m *MockFS) Exists(path string) (bool, error) {
+	ret := _m.ctrl.Call(_m, "Exists", path)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Exists indicates an expected call of Exists
+func (_mr *MockFSMockRecorder) Exists(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "Exists", arg0)
+}
+
+// DirExists mocks base method
+func (_m *MockFS) DirExists(path string) (bool, error) {
+	ret := _m.ctrl.Call(_m, "DirExists", path)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DirExists indicates an expected call of DirExists
+func (_mr *MockFSMockRecorder) DirExists(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DirExists", arg0)
+}
