@@ -4,7 +4,11 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 
+	"github.com/izumin5210/scaffold/app"
+	"github.com/izumin5210/scaffold/app/usecase"
+	"github.com/izumin5210/scaffold/infra/fs"
 	"github.com/mitchellh/cli"
 )
 
@@ -18,8 +22,14 @@ var (
 )
 
 func main() {
+	ctx := getContext()
+	u := usecase.NewGetScaffoldCommandUseCase(ctx.Repository(), ctx.CommandFactoryFactory())
+	// TODO: Should handle errors
+	scffCmds, _ := u.Perform()
+
 	c := cli.NewCLI(Name, fmt.Sprintf("%s (%s)", Version, Revision))
 	c.Args = os.Args[1:]
+	c.Commands = scffCmds
 
 	exitStatus, err := c.Run()
 	if err != nil {
@@ -27,4 +37,10 @@ func main() {
 	}
 
 	os.Exit(exitStatus)
+}
+
+func getContext() app.Context {
+	// TODO: Should handle errors
+	cw, _ := os.Getwd()
+	return app.NewContext(filepath.Join(cw, ".scaffold"), fs.New())
 }
