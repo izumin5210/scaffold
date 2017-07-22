@@ -17,10 +17,7 @@ func (r *repo) GetAll() ([]scaffold.Scaffold, error) {
 	}
 	var scaffolds []scaffold.Scaffold
 	for _, dir := range dirs {
-		scPath, err := filepath.Abs(dir)
-		if err != nil {
-			return nil, err
-		}
+		scPath := filepath.Join(r.tmplsPath, dir)
 		var meta scaffold.Meta
 		data, err := r.fs.ReadFile(path.Join(scPath, "meta.toml"))
 		if err == nil {

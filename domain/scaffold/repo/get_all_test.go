@@ -24,10 +24,10 @@ func Test_GetAll(t *testing.T) {
 	}{
 		{dirs: []string{}},
 		{
-			dirs: []string{"/app/.scaffold/foo", "/app/.scaffold/bar", "/app/.scaffold/baz"},
+			dirs: []string{"foo", "bar", "baz"},
 			metas: map[string]string{
-				"/app/.scaffold/foo": "synopsis = \"\"\"\nGenerates foo\n\"\"\"",
-				"/app/.scaffold/baz": "synopsis = \"\"\"\nGenerates baz\n\"\"\"",
+				"foo": "synopsis = \"\"\"\nGenerates foo\n\"\"\"",
+				"baz": "synopsis = \"\"\"\nGenerates baz\n\"\"\"",
 			},
 			out: []scaffold.Scaffold{
 				scaffold.NewScaffold("/app/.scaffold/bar", &scaffold.Meta{Synopsis: "Geenrates bar"}),
@@ -40,7 +40,7 @@ func Test_GetAll(t *testing.T) {
 	for _, testcase := range testcases {
 		mockFS.EXPECT().GetDirs("/app/.scaffold").Return(testcase.dirs, nil).Times(1)
 		for _, dir := range testcase.dirs {
-			tomlpath := path.Join(dir, "meta.toml")
+			tomlpath := path.Join("/app/.scaffold", dir, "meta.toml")
 			if meta, ok := testcase.metas[dir]; ok {
 				mockFS.EXPECT().ReadFile(tomlpath).Return([]byte(meta), nil).Times(1)
 			} else {
