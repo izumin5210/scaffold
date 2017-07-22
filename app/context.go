@@ -1,8 +1,8 @@
-package core
+package app
 
 import (
-	"github.com/izumin5210/scaffold/cmd"
-	"github.com/izumin5210/scaffold/cmd/factory"
+	"github.com/izumin5210/scaffold/app/cmd"
+	"github.com/izumin5210/scaffold/app/cmd/factory"
 	"github.com/izumin5210/scaffold/domain/scaffold"
 	scaffoldrepo "github.com/izumin5210/scaffold/domain/scaffold/repo"
 	"github.com/izumin5210/scaffold/infra/fs"

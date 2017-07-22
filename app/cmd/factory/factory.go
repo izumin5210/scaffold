@@ -1,7 +1,7 @@
 package factory
 
 import (
-	"github.com/izumin5210/scaffold/cmd"
+	"github.com/izumin5210/scaffold/app/cmd"
 	"github.com/izumin5210/scaffold/domain/scaffold"
 	"github.com/mitchellh/cli"
 )

@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	"github.com/izumin5210/scaffold/cmd/factory"
+	"github.com/izumin5210/scaffold/app/cmd/factory"
 	"github.com/izumin5210/scaffold/domain/scaffold"
 	"github.com/mitchellh/cli"
 )
