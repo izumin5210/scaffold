@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/izumin5210/scaffold/app/usecase"
 	"github.com/izumin5210/scaffold/domain/scaffold"
 	"github.com/mitchellh/cli"
 )
@@ -49,6 +50,11 @@ func (sc *createScaffold) Help() string {
 // Run runs the actual command behavior
 // It is an implementation of mitchellh/cli.Command#Run()
 func (sc *createScaffold) Run(args []string) int {
-	// TODO: Not yet implemented.
+	u := usecase.NewCreateScaffoldUseCase(sc.repo)
+	err := u.Perform(sc.scaffold, args[0])
+	if err != nil {
+		// TODO: Should constantize exit codes
+		return 1
+	}
 	return 0
 }
