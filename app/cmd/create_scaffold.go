@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/izumin5210/scaffold/app"
+	"github.com/izumin5210/scaffold/app/ui"
 	"github.com/izumin5210/scaffold/app/usecase"
 	"github.com/izumin5210/scaffold/domain/scaffold"
 	"github.com/mitchellh/cli"
@@ -12,7 +12,7 @@ import (
 type createScaffold struct {
 	rootPath string
 	repo     scaffold.Repository
-	ui       app.UI
+	ui       ui.UI
 	scaffold scaffold.Scaffold
 }
 
@@ -20,7 +20,7 @@ type createScaffold struct {
 func NewCreateScaffoldCommandFactory(
 	rootPath string,
 	repo scaffold.Repository,
-	ui app.UI,
+	ui ui.UI,
 	sc scaffold.Scaffold,
 ) cli.CommandFactory {
 	return func() (cli.Command, error) {
@@ -32,7 +32,7 @@ func NewCreateScaffoldCommandFactory(
 func NewCreateScaffoldCommandFactories(
 	rootPath string,
 	repo scaffold.Repository,
-	ui app.UI,
+	ui ui.UI,
 	scaffolds []scaffold.Scaffold,
 ) CommandFactories {
 	factories := CommandFactories{}

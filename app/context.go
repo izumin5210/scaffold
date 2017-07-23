@@ -3,6 +3,7 @@ package app
 import (
 	"io"
 
+	"github.com/izumin5210/scaffold/app/ui"
 	"github.com/izumin5210/scaffold/domain/scaffold"
 	scaffoldrepo "github.com/izumin5210/scaffold/domain/scaffold/repo"
 	"github.com/izumin5210/scaffold/infra/fs"
@@ -13,7 +14,7 @@ type Context interface {
 	RootPath() string
 	TemplatesPath() string
 	Repository() scaffold.Repository
-	UI() UI
+	UI() ui.UI
 }
 
 type context struct {
@@ -21,7 +22,7 @@ type context struct {
 	tmplsPath string
 	fs        fs.FS
 	repo      scaffold.Repository
-	ui        UI
+	ui        ui.UI
 }
 
 // NewContext creates a new context object
@@ -35,7 +36,7 @@ func NewContext(
 		rootPath:  rootPath,
 		tmplsPath: tmplsPath,
 		fs:        fs,
-		ui:        NewUI(inStream, outStream, errStream),
+		ui:        ui.NewUI(inStream, outStream, errStream),
 	}
 }
 
@@ -54,6 +55,6 @@ func (c *context) Repository() scaffold.Repository {
 	return c.repo
 }
 
-func (c *context) UI() UI {
+func (c *context) UI() ui.UI {
 	return c.ui
 }

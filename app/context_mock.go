@@ -5,6 +5,7 @@ package app
 
 import (
 	gomock "github.com/golang/mock/gomock"
+	ui "github.com/izumin5210/scaffold/app/ui"
 	scaffold "github.com/izumin5210/scaffold/domain/scaffold"
 	reflect "reflect"
 )
@@ -69,9 +70,9 @@ func (_mr *MockContextMockRecorder) Repository() *gomock.Call {
 }
 
 // UI mocks base method
-func (_m *MockContext) UI() UI {
+func (_m *MockContext) UI() ui.UI {
 	ret := _m.ctrl.Call(_m, "UI")
-	ret0, _ := ret[0].(UI)
+	ret0, _ := ret[0].(ui.UI)
 	return ret0
 }
 
