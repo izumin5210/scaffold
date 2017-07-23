@@ -6,6 +6,7 @@ package app
 import (
 	gomock "github.com/golang/mock/gomock"
 	scaffold "github.com/izumin5210/scaffold/domain/scaffold"
+	reflect "reflect"
 )
 
 // MockContext is a mock of Context interface
@@ -40,7 +41,7 @@ func (_m *MockContext) RootPath() string {
 
 // RootPath indicates an expected call of RootPath
 func (_mr *MockContextMockRecorder) RootPath() *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "RootPath")
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "RootPath", reflect.TypeOf((*MockContext)(nil).RootPath))
 }
 
 // TemplatesPath mocks base method
@@ -52,7 +53,7 @@ func (_m *MockContext) TemplatesPath() string {
 
 // TemplatesPath indicates an expected call of TemplatesPath
 func (_mr *MockContextMockRecorder) TemplatesPath() *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "TemplatesPath")
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "TemplatesPath", reflect.TypeOf((*MockContext)(nil).TemplatesPath))
 }
 
 // Repository mocks base method
@@ -64,7 +65,7 @@ func (_m *MockContext) Repository() scaffold.Repository {
 
 // Repository indicates an expected call of Repository
 func (_mr *MockContextMockRecorder) Repository() *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "Repository")
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "Repository", reflect.TypeOf((*MockContext)(nil).Repository))
 }
 
 // UI mocks base method
@@ -76,5 +77,5 @@ func (_m *MockContext) UI() UI {
 
 // UI indicates an expected call of UI
 func (_mr *MockContextMockRecorder) UI() *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "UI")
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "UI", reflect.TypeOf((*MockContext)(nil).UI))
 }

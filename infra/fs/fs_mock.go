@@ -5,6 +5,7 @@ package fs
 
 import (
 	gomock "github.com/golang/mock/gomock"
+	reflect "reflect"
 )
 
 // MockFS is a mock of FS interface
@@ -40,7 +41,7 @@ func (_m *MockFS) GetDirs(path string) ([]string, error) {
 
 // GetDirs indicates an expected call of GetDirs
 func (_mr *MockFSMockRecorder) GetDirs(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetDirs", arg0)
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "GetDirs", reflect.TypeOf((*MockFS)(nil).GetDirs), arg0)
 }
 
 // ReadFile mocks base method
@@ -53,7 +54,7 @@ func (_m *MockFS) ReadFile(path string) ([]byte, error) {
 
 // ReadFile indicates an expected call of ReadFile
 func (_mr *MockFSMockRecorder) ReadFile(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "ReadFile", arg0)
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "ReadFile", reflect.TypeOf((*MockFS)(nil).ReadFile), arg0)
 }
 
 // Walk mocks base method
@@ -65,7 +66,7 @@ func (_m *MockFS) Walk(path string, cb func(string, bool, error) error) error {
 
 // Walk indicates an expected call of Walk
 func (_mr *MockFSMockRecorder) Walk(arg0, arg1 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "Walk", arg0, arg1)
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "Walk", reflect.TypeOf((*MockFS)(nil).Walk), arg0, arg1)
 }
 
 // CreateDir mocks base method
@@ -77,7 +78,7 @@ func (_m *MockFS) CreateDir(path string) error {
 
 // CreateDir indicates an expected call of CreateDir
 func (_mr *MockFSMockRecorder) CreateDir(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateDir", arg0)
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "CreateDir", reflect.TypeOf((*MockFS)(nil).CreateDir), arg0)
 }
 
 // CreateFile mocks base method
@@ -89,7 +90,7 @@ func (_m *MockFS) CreateFile(path string, content string) error {
 
 // CreateFile indicates an expected call of CreateFile
 func (_mr *MockFSMockRecorder) CreateFile(arg0, arg1 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateFile", arg0, arg1)
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "CreateFile", reflect.TypeOf((*MockFS)(nil).CreateFile), arg0, arg1)
 }
 
 // Exists mocks base method
@@ -102,7 +103,7 @@ func (_m *MockFS) Exists(path string) (bool, error) {
 
 // Exists indicates an expected call of Exists
 func (_mr *MockFSMockRecorder) Exists(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "Exists", arg0)
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "Exists", reflect.TypeOf((*MockFS)(nil).Exists), arg0)
 }
 
 // DirExists mocks base method
@@ -115,5 +116,5 @@ func (_m *MockFS) DirExists(path string) (bool, error) {
 
 // DirExists indicates an expected call of DirExists
 func (_mr *MockFSMockRecorder) DirExists(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "DirExists", arg0)
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "DirExists", reflect.TypeOf((*MockFS)(nil).DirExists), arg0)
 }

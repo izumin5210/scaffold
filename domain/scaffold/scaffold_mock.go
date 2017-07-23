@@ -5,6 +5,7 @@ package scaffold
 
 import (
 	gomock "github.com/golang/mock/gomock"
+	reflect "reflect"
 )
 
 // MockScaffold is a mock of Scaffold interface
@@ -39,7 +40,7 @@ func (_m *MockScaffold) Path() string {
 
 // Path indicates an expected call of Path
 func (_mr *MockScaffoldMockRecorder) Path() *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "Path")
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "Path", reflect.TypeOf((*MockScaffold)(nil).Path))
 }
 
 // Name mocks base method
@@ -51,7 +52,7 @@ func (_m *MockScaffold) Name() string {
 
 // Name indicates an expected call of Name
 func (_mr *MockScaffoldMockRecorder) Name() *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "Name")
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "Name", reflect.TypeOf((*MockScaffold)(nil).Name))
 }
 
 // Synopsis mocks base method
@@ -63,7 +64,7 @@ func (_m *MockScaffold) Synopsis() string {
 
 // Synopsis indicates an expected call of Synopsis
 func (_mr *MockScaffoldMockRecorder) Synopsis() *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "Synopsis")
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "Synopsis", reflect.TypeOf((*MockScaffold)(nil).Synopsis))
 }
 
 // Help mocks base method
@@ -75,5 +76,5 @@ func (_m *MockScaffold) Help() string {
 
 // Help indicates an expected call of Help
 func (_mr *MockScaffoldMockRecorder) Help() *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "Help")
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "Help", reflect.TypeOf((*MockScaffold)(nil).Help))
 }

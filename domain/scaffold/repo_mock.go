@@ -5,6 +5,7 @@ package scaffold
 
 import (
 	gomock "github.com/golang/mock/gomock"
+	reflect "reflect"
 )
 
 // MockRepository is a mock of Repository interface
@@ -40,7 +41,7 @@ func (_m *MockRepository) GetAll() ([]Scaffold, error) {
 
 // GetAll indicates an expected call of GetAll
 func (_mr *MockRepositoryMockRecorder) GetAll() *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetAll")
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "GetAll", reflect.TypeOf((*MockRepository)(nil).GetAll))
 }
 
 // Construct mocks base method
@@ -52,5 +53,5 @@ func (_m *MockRepository) Construct(scff Scaffold, name string, cb ConstructCall
 
 // Construct indicates an expected call of Construct
 func (_mr *MockRepositoryMockRecorder) Construct(arg0, arg1, arg2 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "Construct", arg0, arg1, arg2)
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "Construct", reflect.TypeOf((*MockRepository)(nil).Construct), arg0, arg1, arg2)
 }
