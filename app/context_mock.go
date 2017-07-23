@@ -66,3 +66,15 @@ func (_m *MockContext) Repository() scaffold.Repository {
 func (_mr *MockContextMockRecorder) Repository() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "Repository")
 }
+
+// UI mocks base method
+func (_m *MockContext) UI() UI {
+	ret := _m.ctrl.Call(_m, "UI")
+	ret0, _ := ret[0].(UI)
+	return ret0
+}
+
+// UI indicates an expected call of UI
+func (_mr *MockContextMockRecorder) UI() *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "UI")
+}
