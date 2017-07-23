@@ -43,7 +43,11 @@ func (s ConstructStatus) String() string {
 }
 
 // ConstructCallback is called after files and directories is created
-type ConstructCallback func(path string, dir bool, status ConstructStatus)
+type ConstructCallback func(path string, dir, conflicted bool, status ConstructStatus)
+
+// ConstructConflictedCallback is called when a new file content is diifferent from an existing file
+// If it returns true, it overwrites a new one
+type ConstructConflictedCallback func(path, oldContent, newContent string) bool
 
 // Repository is a repository for scaffolds
 type Repository interface {
@@ -52,5 +56,6 @@ type Repository interface {
 		scff Scaffold,
 		name string,
 		cb ConstructCallback,
+		conflictedCb ConstructConflictedCallback,
 	) error
 }

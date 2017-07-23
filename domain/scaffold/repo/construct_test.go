@@ -24,8 +24,9 @@ type constructTestContext struct {
 }
 
 type constructCallbackCall struct {
-	dir    bool
-	status scaffold.ConstructStatus
+	dir        bool
+	conflicted bool
+	status     scaffold.ConstructStatus
 }
 
 type constructTestEntry struct {
@@ -34,7 +35,8 @@ type constructTestEntry struct {
 	outputPath      string
 	outputContent   string
 	existing        bool
-	existingContent bool
+	existingContent string
+	overwriting     bool
 }
 
 func getConstructTestContext(t *testing.T) *constructTestContext {
@@ -95,6 +97,11 @@ func setupConstructTest(
 			ctx.fs.EXPECT().ReadFile(templateAbsPath).
 				Return([]byte(entry.template), nil).
 				AnyTimes()
+			if entry.existing {
+				ctx.fs.EXPECT().ReadFile(outputAbsPath).
+					Return([]byte(entry.existingContent), nil).
+					AnyTimes()
+			}
 		}
 
 		// Stubbing fs.CreateDir()
@@ -105,7 +112,7 @@ func setupConstructTest(
 		}
 
 		// Stubbingg fs.CreateFile()
-		if !entry.dir && !entry.existing {
+		if !entry.dir && (!entry.existing || (entry.existing && entry.overwriting)) {
 			ctx.fs.EXPECT().CreateFile(outputAbsPath, entry.outputContent).
 				Return(nil).
 				Times(1)
@@ -173,8 +180,15 @@ func Test_Construct(t *testing.T) {
 	err := ctx.repo.Construct(
 		ctx.scaffold,
 		ctx.name,
-		func(path string, dir bool, status scaffold.ConstructStatus) {
-			callbackCalls[path] = &constructCallbackCall{dir: dir, status: status}
+		func(path string, dir, conflicted bool, status scaffold.ConstructStatus) {
+			if conflicted {
+				t.Errorf("Unexpected conflict detected: %s", path)
+			}
+			callbackCalls[path] = &constructCallbackCall{dir: dir, conflicted: conflicted, status: status}
+		},
+		func(path, oldContent, newContent string) bool {
+			t.Errorf("Unexpected conflict detected: %s", path)
+			return false
 		},
 	)
 
@@ -205,16 +219,20 @@ func Test_Construct_FileExists(t *testing.T) {
 
 	entries := map[string]*constructTestEntry{
 		"bar": {
-			dir:        false,
-			outputPath: "bar",
-			existing:   true,
+			dir:             false,
+			template:        "{{name}} bar",
+			outputPath:      "bar",
+			outputContent:   fmt.Sprintf("%s bar", ctx.name),
+			existing:        true,
+			existingContent: fmt.Sprintf("%s bar", ctx.name),
 		},
 		"baz": {
-			dir:           false,
-			template:      "{{name}} baz",
-			outputPath:    "baz",
-			outputContent: fmt.Sprintf("%s baz", ctx.name),
-			existing:      true,
+			dir:             false,
+			template:        "{{name}} baz",
+			outputPath:      "baz",
+			outputContent:   fmt.Sprintf("%s baz", ctx.name),
+			existing:        true,
+			existingContent: fmt.Sprintf("%s baz", ctx.name),
 		},
 	}
 
@@ -225,8 +243,15 @@ func Test_Construct_FileExists(t *testing.T) {
 	err := ctx.repo.Construct(
 		ctx.scaffold,
 		ctx.name,
-		func(path string, dir bool, status scaffold.ConstructStatus) {
+		func(path string, dir, conflicted bool, status scaffold.ConstructStatus) {
+			if conflicted {
+				t.Errorf("Unexpected conflict detected: %s", path)
+			}
 			callbackCalls[path] = &constructCallbackCall{dir: dir, status: status}
+		},
+		func(path, oldContent, newContent string) bool {
+			t.Errorf("Unexpected conflict detected: %s", path)
+			return false
 		},
 	)
 
@@ -288,8 +313,15 @@ func Test_Construct_DirExists(t *testing.T) {
 	err := ctx.repo.Construct(
 		ctx.scaffold,
 		ctx.name,
-		func(path string, dir bool, status scaffold.ConstructStatus) {
+		func(path string, dir, conflicted bool, status scaffold.ConstructStatus) {
+			if conflicted {
+				t.Errorf("Unexpected conflict detected: %s", path)
+			}
 			callbackCalls[path] = &constructCallbackCall{dir: dir, status: status}
+		},
+		func(path, oldContent, newContent string) bool {
+			t.Errorf("Unexpected conflict detected: %s", path)
+			return false
 		},
 	)
 
@@ -299,6 +331,93 @@ func Test_Construct_DirExists(t *testing.T) {
 			expected := scaffold.ConstructSuccess
 			if entry.existing {
 				expected = scaffold.ConstructSkipped
+			}
+			if actual := c.status; actual != expected {
+				t.Errorf("ConstructCallback(%s, %t, %s) was called, want (%s, %t, %s)", p, c.dir, actual, p, entry.dir, expected)
+			}
+		} else {
+			t.Errorf("ConstructCallback(%s, %t, ConstructStatus) should be called", p, entry.dir)
+		}
+	}
+
+	if err != nil {
+		t.Errorf("Unexpected error %v", err)
+	}
+}
+
+func Test_Construct_WhenDetectConflicts(t *testing.T) {
+	ctx := getConstructTestContext(t)
+	defer ctx.ctrl.Finish()
+
+	entries := map[string]*constructTestEntry{
+		"bar": {
+			dir:             false,
+			template:        "{{name}} bar",
+			outputPath:      "bar",
+			outputContent:   fmt.Sprintf("%s bar", ctx.name),
+			existing:        true,
+			existingContent: fmt.Sprintf("%s bar", ctx.name),
+		},
+		"baz": {
+			dir:             false,
+			template:        "{{name}} baz",
+			outputPath:      "baz",
+			outputContent:   fmt.Sprintf("%s baz", ctx.name),
+			existing:        true,
+			existingContent: "bazbaz",
+			overwriting:     true,
+		},
+		"qux": {
+			dir:             false,
+			template:        "{{name}} qux",
+			outputPath:      "qux",
+			outputContent:   fmt.Sprintf("%s qux", ctx.name),
+			existing:        true,
+			existingContent: "quxqux",
+			overwriting:     false,
+		},
+	}
+
+	setupConstructTest(ctx, entries)
+
+	callbackCalls := map[string]*constructCallbackCall{}
+
+	err := ctx.repo.Construct(
+		ctx.scaffold,
+		ctx.name,
+		func(path string, dir, conflicted bool, status scaffold.ConstructStatus) {
+			callbackCalls[path] = &constructCallbackCall{dir: dir, conflicted: conflicted, status: status}
+		},
+		func(path, oldContent, newContent string) bool {
+			relpath, err := filepath.Rel(ctx.rootPath, path)
+			if err != nil {
+				t.Fatalf("Unexpected error %v", err)
+			}
+			if entry, ok := entries[relpath]; ok {
+				if oldContent != entry.existingContent {
+					t.Errorf("2nd argument was %q, want %q", oldContent, entry.existingContent)
+				}
+				if newContent != entry.outputContent {
+					t.Errorf("2nd argument was %q, want %q", newContent, entry.outputContent)
+				}
+				if entry.outputContent == entry.existingContent {
+					t.Errorf("Conflicted content should be different with old content: %q", path)
+				}
+				return entry.overwriting
+			}
+			return true
+		},
+	)
+
+	for _, entry := range entries {
+		p := filepath.Join(ctx.rootPath, entry.outputPath)
+		if c, ok := callbackCalls[p]; ok {
+			expected := scaffold.ConstructSuccess
+			if entry.existing && !entry.overwriting {
+				expected = scaffold.ConstructSkipped
+			}
+			if entry.outputContent != entry.existingContent && !c.conflicted {
+				t.Errorf("3rd argument ConstructCallback(%s, bool, bool, ConstructStatus) was %t, want %t", p, true, false)
 			}
 			if actual := c.status; actual != expected {
 				t.Errorf("ConstructCallback(%s, %t, %s) was called, want (%s, %t, %s)", p, c.dir, actual, p, entry.dir, expected)
