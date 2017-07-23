@@ -3,6 +3,7 @@ VERSION := 0.0.1
 REVISION := $(shell git describe --always)
 LDFLAGS := -ldflags="-s -w -X \"main.Name=$(NAME)\" -X \"main.Version=$(VERSION)\" -X \"main.Revision=$(REVISION)\" -extldflags \"-static\""
 PACKAGE_DIRS := $(shell go list ./... 2> /dev/null | grep -v /vendor | grep -v /mock)
+MOCK_FILES := $(shell git ls-files | grep _mock.go | paste -s -d "," -)
 
 XC_ARCH := 386 amd64
 XC_OS := darwin linux windows
@@ -35,7 +36,7 @@ build: generate
 
 .PHONY: test-ci
 test-ci: generate lint
-	goveralls -service=travis-ci
+	goveralls -service=travis-ci -ignore="$(MOCK_FILES)"
 
 .PHONY: test
 test: generate lint
