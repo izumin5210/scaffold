@@ -58,5 +58,10 @@ func getScaffoldCommands(ctx app.Context) (cmd.CommandFactories, error) {
 	if err != nil {
 		return nil, err
 	}
-	return cmd.NewCreateScaffoldCommandFactories(ctx.Repository(), scaffolds), nil
+	return cmd.NewCreateScaffoldCommandFactories(
+		ctx.RootPath(),
+		ctx.Repository(),
+		ctx.UI(),
+		scaffolds,
+	), nil
 }

@@ -1,6 +1,9 @@
 package usecase
 
 import (
+	"path/filepath"
+
+	"github.com/izumin5210/scaffold/app"
 	"github.com/izumin5210/scaffold/domain/scaffold"
 )
 
@@ -10,12 +13,14 @@ type CreateScaffoldUseCase interface {
 }
 
 type createScaffoldUseCase struct {
-	repo scaffold.Repository
+	rootPath string
+	repo     scaffold.Repository
+	ui       app.UI
 }
 
 // NewCreateScaffoldUseCase creates a CreateScaffoldUseCase instance
-func NewCreateScaffoldUseCase(repo scaffold.Repository) CreateScaffoldUseCase {
-	return &createScaffoldUseCase{repo: repo}
+func NewCreateScaffoldUseCase(rootPath string, repo scaffold.Repository, ui app.UI) CreateScaffoldUseCase {
+	return &createScaffoldUseCase{rootPath: rootPath, repo: repo, ui: ui}
 }
 
 func (u *createScaffoldUseCase) Perform(scff scaffold.Scaffold, name string) error {
@@ -23,5 +28,12 @@ func (u *createScaffoldUseCase) Perform(scff scaffold.Scaffold, name string) err
 }
 
 func (u *createScaffoldUseCase) constructCallback(path string, dir bool, status scaffold.ConstructStatus) {
+	if !dir {
+		relpath, _ := filepath.Rel(u.rootPath, path)
+		if status.IsSuccess() {
+			u.ui.Status("create", relpath, app.UIColorGreen)
+		} else if status.IsSkipped() {
+			u.ui.Status("identical", relpath, app.UIColorBlue)
+		}
 	}
 }
