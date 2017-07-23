@@ -2,7 +2,11 @@ package scaffold
 
 import (
 	"bytes"
+	"strings"
 	gotemplate "text/template"
+
+	"github.com/jinzhu/inflection"
+	"github.com/serenize/snaker"
 )
 
 // Template is a template renderer for file paths and contents
@@ -43,6 +47,17 @@ func (t *template) getInstance() *gotemplate.Template {
 
 func (t *template) createFuncMap() gotemplate.FuncMap {
 	return gotemplate.FuncMap{
-		"name": func() string { return t.name },
+		"name":        func() string { return t.name },
+		"toUpper":     strings.ToUpper,
+		"toLower":     strings.ToLower,
+		"camelize":    snaker.SnakeToCamelLower,
+		"pascalize":   snaker.SnakeToCamel,
+		"underscored": snaker.CamelToSnake,
+		"dasherize": func(s string) string {
+			return strings.Replace(snaker.CamelToSnake(s), "_", "-", -1)
+		},
+		"singularize": inflection.Singular,
+		"pluralize":   inflection.Plural,
+		"firstChild":  func(s string) string { return s[:1] },
 	}
 }

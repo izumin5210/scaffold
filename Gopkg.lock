@@ -32,6 +32,12 @@
   revision = "93f6609a15b7de76bd49259f1f9a6b58df358936"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/jinzhu/inflection"
+  packages = ["."]
+  revision = "1c35d901db3da928c72a72d8458480cc9ade058f"
+
+[[projects]]
   name = "github.com/mattn/go-colorable"
   packages = ["."]
   revision = "941b50ebc6efddf4c41c8e4537a5f68a4e686b24"
@@ -57,6 +63,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/serenize/snaker"
+  packages = ["."]
+  revision = "1c7f65329f6524115af8ca01ab604c00cddf5558"
+
+[[projects]]
+  branch = "master"
   name = "github.com/spf13/afero"
   packages = [".","mem"]
   revision = "9be650865eab0c12963d8753212f4f9c66cdcf12"
@@ -76,6 +88,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "942097065071a156d34a62b24885b2c267ddd0cfa45fe5206b7ff349b3c27516"
+  inputs-digest = "0ff3c3dda47569909ed3b2399744a18f3a78d271aaf7fec35578c7af3138133e"
   solver-name = "gps-cdcl"
   solver-version = 1
