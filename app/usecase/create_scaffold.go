@@ -28,11 +28,13 @@ func (u *createScaffoldUseCase) Perform(scff scaffold.Scaffold, name string) err
 }
 
 func (u *createScaffoldUseCase) constructCallback(path string, dir bool, status scaffold.ConstructStatus) {
-	if !dir {
-		relpath, _ := filepath.Rel(u.rootPath, path)
-		if status.IsSuccess() {
-			u.ui.Status("create", relpath, app.UIColorGreen)
-		} else if status.IsSkipped() {
+	relpath, _ := filepath.Rel(u.rootPath, path)
+	if status.IsSuccess() {
+		u.ui.Status("create", relpath, app.UIColorGreen)
+	} else if status.IsSkipped() {
+		if dir {
+			u.ui.Status("exist", relpath, app.UIColorBlue)
+		} else {
 			u.ui.Status("identical", relpath, app.UIColorBlue)
 		}
 	}
