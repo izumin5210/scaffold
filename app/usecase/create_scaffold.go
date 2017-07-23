@@ -19,5 +19,9 @@ func NewCreateScaffoldUseCase(repo scaffold.Repository) CreateScaffoldUseCase {
 }
 
 func (u *createScaffoldUseCase) Perform(scff scaffold.Scaffold, name string) error {
-	return u.repo.Construct(scff, name)
+	return u.repo.Construct(scff, name, u.constructCallback)
+}
+
+func (u *createScaffoldUseCase) constructCallback(path string, dir bool, status scaffold.ConstructStatus) {
+	}
 }

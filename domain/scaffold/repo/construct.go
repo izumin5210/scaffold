@@ -8,7 +8,7 @@ import (
 	"github.com/izumin5210/scaffold/domain/scaffold"
 )
 
-func (r *repo) Construct(scff scaffold.Scaffold, name string) error {
+func (r *repo) Construct(scff scaffold.Scaffold, name string, cb scaffold.ConstructCallback) error {
 	evaluator := &templateEvaluator{funcMap: template.FuncMap{
 		"name": func() string { return name },
 	}}
@@ -32,12 +32,22 @@ func (r *repo) Construct(scff scaffold.Scaffold, name string) error {
 
 		if dir {
 			if exists, err := r.fs.DirExists(outputPath); exists || err != nil {
+				if exists && err == nil {
+					cb(outputPath, true, scaffold.ConstructSkipped)
+				}
 				return err
 			}
-			return r.fs.CreateDir(outputPath)
+			err = r.fs.CreateDir(outputPath)
+			if err == nil {
+				cb(outputPath, true, scaffold.ConstructSuccess)
+			}
+			return err
 		}
 
 		if exists, err := r.fs.Exists(outputPath); exists || err != nil {
+			if exists && err == nil {
+				cb(outputPath, false, scaffold.ConstructSkipped)
+			}
 			return err
 		}
 
@@ -49,7 +59,11 @@ func (r *repo) Construct(scff scaffold.Scaffold, name string) error {
 		if err != nil {
 			return err
 		}
-		return r.fs.CreateFile(outputPath, content)
+		err = r.fs.CreateFile(outputPath, content)
+		if err == nil {
+			cb(outputPath, false, scaffold.ConstructSuccess)
+		}
+		return err
 	})
 	return err
 }

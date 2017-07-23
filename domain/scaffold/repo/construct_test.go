@@ -97,10 +97,40 @@ func Test_Construct(t *testing.T) {
 		ctx.fs.EXPECT().CreateFile(filepath.Join(ctx.rootPath, path), content).Return(nil)
 	}
 
-	err := ctx.repo.Construct(ctx.scaffold, ctx.name)
+	type callbackCall struct {
+		dir    bool
+		status scaffold.ConstructStatus
+	}
+	callbackCalls := map[string]*callbackCall{}
+
+	err := ctx.repo.Construct(
+		ctx.scaffold,
+		ctx.name,
+		func(path string, dir bool, status scaffold.ConstructStatus) {
+			callbackCalls[path] = &callbackCall{dir: dir, status: status}
+		},
+	)
 
 	if err != nil {
 		t.Errorf("Unexpected error %v", err)
+	}
+
+	for _, dir := range dirs {
+		p := filepath.Join(ctx.rootPath, dir)
+		if c, ok := callbackCalls[p]; !ok {
+			t.Errorf("ConstructCallback(%s, %t, %s) should be called", p, true, scaffold.ConstructSuccess)
+		} else if !c.dir || !c.status.IsSuccess() {
+			t.Errorf("ConstructCallback(%s, %t, %s) was called, want (%s, %t, %s)", p, c.dir, c.status, p, true, scaffold.ConstructSuccess)
+		}
+	}
+
+	for relpath := range outputs {
+		p := filepath.Join(ctx.rootPath, relpath)
+		if c, ok := callbackCalls[p]; !ok {
+			t.Errorf("ConstructCallback(%s, %t, %s) should be called", p, false, scaffold.ConstructSuccess)
+		} else if c.dir || !c.status.IsSuccess() {
+			t.Errorf("ConstructCallback(%s, %t, %s) was called, want (%s, %t, %s)", p, c.dir, c.status, p, false, scaffold.ConstructSuccess)
+		}
 	}
 }
 
@@ -150,7 +180,34 @@ func Test_Construct_FileExists(t *testing.T) {
 			Times(1)
 	}
 
-	err := ctx.repo.Construct(ctx.scaffold, ctx.name)
+	type callbackCall struct {
+		dir    bool
+		status scaffold.ConstructStatus
+	}
+	callbackCalls := map[string]*callbackCall{}
+
+	err := ctx.repo.Construct(
+		ctx.scaffold,
+		ctx.name,
+		func(path string, dir bool, status scaffold.ConstructStatus) {
+			callbackCalls[path] = &callbackCall{dir: dir, status: status}
+		},
+	)
+
+	for _, entry := range entries {
+		p := filepath.Join(ctx.rootPath, entry.path)
+		if c, ok := callbackCalls[p]; ok {
+			expected := scaffold.ConstructSuccess
+			if entry.exists {
+				expected = scaffold.ConstructSkipped
+			}
+			if actual := c.status; actual != expected {
+				t.Errorf("ConstructCallback(%s, %t, %s) was called, want (%s, %t, %s)", p, c.dir, actual, p, entry.dir, expected)
+			}
+		} else {
+			t.Errorf("ConstructCallback(%s, %t, ConstructStatus) should be called", p, entry.dir)
+		}
+	}
 
 	if err != nil {
 		t.Errorf("Unexpected error %v", err)
@@ -215,7 +272,34 @@ func Test_Construct_DirExists(t *testing.T) {
 			Times(1)
 	}
 
-	err := ctx.repo.Construct(ctx.scaffold, ctx.name)
+	type callbackCall struct {
+		dir    bool
+		status scaffold.ConstructStatus
+	}
+	callbackCalls := map[string]*callbackCall{}
+
+	err := ctx.repo.Construct(
+		ctx.scaffold,
+		ctx.name,
+		func(path string, dir bool, status scaffold.ConstructStatus) {
+			callbackCalls[path] = &callbackCall{dir: dir, status: status}
+		},
+	)
+
+	for _, entry := range entries {
+		p := filepath.Join(ctx.rootPath, entry.path)
+		if c, ok := callbackCalls[p]; ok {
+			expected := scaffold.ConstructSuccess
+			if entry.exists {
+				expected = scaffold.ConstructSkipped
+			}
+			if actual := c.status; actual != expected {
+				t.Errorf("ConstructCallback(%s, %t, %s) was called, want (%s, %t, %s)", p, c.dir, actual, p, entry.dir, expected)
+			}
+		} else {
+			t.Errorf("ConstructCallback(%s, %t, ConstructStatus) should be called", p, entry.dir)
+		}
+	}
 
 	if err != nil {
 		t.Errorf("Unexpected error %v", err)

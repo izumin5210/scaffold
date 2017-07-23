@@ -44,13 +44,13 @@ func (_mr *MockRepositoryMockRecorder) GetAll() *gomock.Call {
 }
 
 // Construct mocks base method
-func (_m *MockRepository) Construct(scff Scaffold, name string) error {
-	ret := _m.ctrl.Call(_m, "Construct", scff, name)
+func (_m *MockRepository) Construct(scff Scaffold, name string, cb ConstructCallback) error {
+	ret := _m.ctrl.Call(_m, "Construct", scff, name, cb)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Construct indicates an expected call of Construct
-func (_mr *MockRepositoryMockRecorder) Construct(arg0, arg1 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "Construct", arg0, arg1)
+func (_mr *MockRepositoryMockRecorder) Construct(arg0, arg1, arg2 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "Construct", arg0, arg1, arg2)
 }
