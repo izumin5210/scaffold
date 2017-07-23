@@ -57,13 +57,16 @@ func Test_Walk(t *testing.T) {
 	afs.Mkdir("/app/bar", os.ModeDir)
 	afs.WriteFile("/app/baz", []byte("baz file"), 0666)
 	afs.WriteFile("/app/bar/quz", []byte("quz file"), 0666)
+	afs.Mkdir("/app/foo/qux", os.ModeDir)
+	afs.Mkdir("/app/foo/quux", os.ModeDir)
 
 	expects := map[string]bool{
-		"/app":         true,
-		"/app/foo":     true,
-		"/app/bar":     true,
-		"/app/baz":     false,
-		"/app/bar/quz": false,
+		"/app":          true,
+		"/app/bar":      true,
+		"/app/baz":      false,
+		"/app/bar/quz":  false,
+		"/app/foo/qux":  true,
+		"/app/foo/quux": true,
 	}
 	actuals := map[string]bool{}
 
@@ -71,6 +74,9 @@ func Test_Walk(t *testing.T) {
 		if err != nil {
 			t.Errorf("Unexpected error %v", err)
 			return err
+		}
+		if _, ok := expects[path]; !ok {
+			t.Errorf("Unexpected visted path %q", path)
 		}
 		actuals[path] = dir
 		return nil

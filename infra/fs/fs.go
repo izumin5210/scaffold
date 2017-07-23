@@ -45,6 +45,21 @@ func (f *fs) GetDirs(name string) ([]string, error) {
 
 func (f *fs) Walk(root string, cb func(path string, dir bool, err error) error) error {
 	return f.afs.Walk(root, func(path string, info os.FileInfo, err error) error {
+		if info.IsDir() {
+			entries, err := f.afs.ReadDir(path)
+			if err != nil {
+				return err
+			}
+			if len(entries) > 0 {
+				onlyDir := true
+				for _, entry := range entries {
+					onlyDir = onlyDir && entry.IsDir()
+				}
+				if onlyDir {
+					return nil
+				}
+			}
+		}
 		return cb(path, info.IsDir(), err)
 	})
 }
