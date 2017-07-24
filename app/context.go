@@ -4,6 +4,7 @@ import (
 	"io"
 
 	"github.com/izumin5210/scaffold/app/ui"
+	"github.com/izumin5210/scaffold/app/usecase"
 	"github.com/izumin5210/scaffold/domain/scaffold"
 	scaffoldrepo "github.com/izumin5210/scaffold/domain/scaffold/repo"
 	"github.com/izumin5210/scaffold/infra/fs"
@@ -15,6 +16,8 @@ type Context interface {
 	TemplatesPath() string
 	Repository() scaffold.Repository
 	UI() ui.UI
+	GetScaffoldsUseCase() usecase.GetScaffoldsUseCase
+	CreateScaffoldUseCase() usecase.CreateScaffoldUseCase
 }
 
 type context struct {
@@ -57,4 +60,12 @@ func (c *context) Repository() scaffold.Repository {
 
 func (c *context) UI() ui.UI {
 	return c.ui
+}
+
+func (c *context) GetScaffoldsUseCase() usecase.GetScaffoldsUseCase {
+	return usecase.NewGetScaffoldsUseCase(c.Repository())
+}
+
+func (c *context) CreateScaffoldUseCase() usecase.CreateScaffoldUseCase {
+	return usecase.NewCreateScaffoldUseCase(c.RootPath(), c.Repository(), c.UI())
 }

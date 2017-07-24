@@ -6,6 +6,7 @@ package app
 import (
 	gomock "github.com/golang/mock/gomock"
 	ui "github.com/izumin5210/scaffold/app/ui"
+	usecase "github.com/izumin5210/scaffold/app/usecase"
 	scaffold "github.com/izumin5210/scaffold/domain/scaffold"
 	reflect "reflect"
 )
@@ -79,4 +80,28 @@ func (_m *MockContext) UI() ui.UI {
 // UI indicates an expected call of UI
 func (_mr *MockContextMockRecorder) UI() *gomock.Call {
 	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "UI", reflect.TypeOf((*MockContext)(nil).UI))
+}
+
+// GetScaffoldsUseCase mocks base method
+func (_m *MockContext) GetScaffoldsUseCase() usecase.GetScaffoldsUseCase {
+	ret := _m.ctrl.Call(_m, "GetScaffoldsUseCase")
+	ret0, _ := ret[0].(usecase.GetScaffoldsUseCase)
+	return ret0
+}
+
+// GetScaffoldsUseCase indicates an expected call of GetScaffoldsUseCase
+func (_mr *MockContextMockRecorder) GetScaffoldsUseCase() *gomock.Call {
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "GetScaffoldsUseCase", reflect.TypeOf((*MockContext)(nil).GetScaffoldsUseCase))
+}
+
+// CreateScaffoldUseCase mocks base method
+func (_m *MockContext) CreateScaffoldUseCase() usecase.CreateScaffoldUseCase {
+	ret := _m.ctrl.Call(_m, "CreateScaffoldUseCase")
+	ret0, _ := ret[0].(usecase.CreateScaffoldUseCase)
+	return ret0
+}
+
+// CreateScaffoldUseCase indicates an expected call of CreateScaffoldUseCase
+func (_mr *MockContextMockRecorder) CreateScaffoldUseCase() *gomock.Call {
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "CreateScaffoldUseCase", reflect.TypeOf((*MockContext)(nil).CreateScaffoldUseCase))
 }
