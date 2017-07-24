@@ -8,7 +8,6 @@ import (
 
 	"github.com/izumin5210/scaffold/app"
 	"github.com/izumin5210/scaffold/app/cmd"
-	"github.com/izumin5210/scaffold/app/usecase"
 	"github.com/izumin5210/scaffold/infra/fs"
 	"github.com/mitchellh/cli"
 )
@@ -24,12 +23,10 @@ var (
 
 func main() {
 	ctx := getContext()
-	// TODO: Should handle errors
-	scffCmds, _ := getScaffoldCommands(ctx)
 
 	c := cli.NewCLI(Name, fmt.Sprintf("%s (%s)", Version, Revision))
 	c.Args = os.Args[1:]
-	c.Commands = scffCmds
+	c.Commands = getCommands(ctx)
 
 	exitStatus, err := c.Run()
 	if err != nil {
@@ -52,16 +49,13 @@ func getContext() app.Context {
 	)
 }
 
-func getScaffoldCommands(ctx app.Context) (cmd.CommandFactories, error) {
-	u := usecase.NewGetScaffoldsUseCase(ctx.Repository())
-	scaffolds, err := u.Perform()
-	if err != nil {
-		return nil, err
-	}
-	return cmd.NewCreateScaffoldCommandFactories(
-		ctx.RootPath(),
-		ctx.Repository(),
+func getCommands(ctx app.Context) cmd.CommandFactories {
+	factories := cmd.CommandFactories{}
+	factories["generate"] = cmd.NewGenerateCommandFactory(
+		ctx.GetScaffoldsUseCase(),
+		ctx.CreateScaffoldUseCase(),
 		ctx.UI(),
-		scaffolds,
-	), nil
+	)
+	factories["g"] = factories["generate"]
+	return factories
 }
