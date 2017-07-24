@@ -62,4 +62,4 @@ package: clean deps
 
 .PHONY: release
 release: package
-	ghr --username $GITHUB_USER --token $GITHUB_TOKEN --replace --prerelease --debug pre-release pkg/
+	ghr --username $(GITHUB_USER) --token $(GITHUB_TOKEN) --replace --prerelease --debug pre-release pkg/
