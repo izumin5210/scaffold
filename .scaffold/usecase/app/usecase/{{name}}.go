@@ -9,7 +9,7 @@ type {{name | camelize}}UseCase struct {
 }
 
 // New{{name | pascalize}}UseCase creates a {{name | pascalize}} instance
-func New{{name | pascalize]}UseCase() {{name | pascalize}} {
+func New{{name | pascalize}}UseCase() {{name | pascalize}} {
 	return &{{name | camelize}}{}
 }
 
