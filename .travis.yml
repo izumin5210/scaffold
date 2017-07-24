@@ -1,19 +1,24 @@
 language: go
 
 go:
-  - 1.8
+- 1.8
 
 env:
   global:
-    - GITHUB_USER=izumin5210
-    # GITHUB_TOKEN
-    - secure: "YD/Njx+UWOTZUem/ZthHMOSwNbXZ6CQpLR4J9o6CXFHnTLsEcGQBfvh+ggHKOebjujBp5sbaIqjNoKvjHgvlMOo8W3YMpOWMwOwR9PP4ul+H9MS2COTzGd+uSUojMpSbduwbryUk58DnleD0oU36z9PXayRDFPURQuKD8vWt86c/rNfQtPbsTB3F4ogJtsQwdTqtYHDenjCK600LJld0Eyzw97zuZRr8ZeqyLd1smefD0AuSVvX3rlnC+ufTUG/ICEL7+Hpm4caV/tLMLCsLdjk7G3kw80jEPPhKwQVgTNy8jOZ8eoBF0BukCbnsqBdPkeqCCY6GV7KiNc4S4fFRcFFJzqzY/aAGygZNguRK3hhNg0vHVLJi5Cpr7u0+8KV8KIfjzqM6yqCR5wIt8WWnt9k8dgODKTcePaFEiCKmih4p55sRIIT/vT91fgU2J1Xu/c8H0AiWwL3gFs2vVPuBbT1tVEYZBGQpABvCJe1N/u4vRnoipA8cS1q6Z+iPfKSuFVp8iVJHt4RS5bx9Gw/hP6zLAg7n0RhFExKA4/XvMCqhFQbXaTsSyty4dbt324tKMZ5DaLLDYWA5x6ZcBFXSTHI8s/U1gi2SUeJGPIDrLi4MYtlb1D0o9ysuZgpeM9vDaKnJEpMozSbtQU/MmDbCYFw4iJsWBocCWfh5TLBIjSQ="
+  - GITHUB_USER=izumin5210
+  # GITHUB_TOKEN
+  - secure: "YD/Njx+UWOTZUem/ZthHMOSwNbXZ6CQpLR4J9o6CXFHnTLsEcGQBfvh+ggHKOebjujBp5sbaIqjNoKvjHgvlMOo8W3YMpOWMwOwR9PP4ul+H9MS2COTzGd+uSUojMpSbduwbryUk58DnleD0oU36z9PXayRDFPURQuKD8vWt86c/rNfQtPbsTB3F4ogJtsQwdTqtYHDenjCK600LJld0Eyzw97zuZRr8ZeqyLd1smefD0AuSVvX3rlnC+ufTUG/ICEL7+Hpm4caV/tLMLCsLdjk7G3kw80jEPPhKwQVgTNy8jOZ8eoBF0BukCbnsqBdPkeqCCY6GV7KiNc4S4fFRcFFJzqzY/aAGygZNguRK3hhNg0vHVLJi5Cpr7u0+8KV8KIfjzqM6yqCR5wIt8WWnt9k8dgODKTcePaFEiCKmih4p55sRIIT/vT91fgU2J1Xu/c8H0AiWwL3gFs2vVPuBbT1tVEYZBGQpABvCJe1N/u4vRnoipA8cS1q6Z+iPfKSuFVp8iVJHt4RS5bx9Gw/hP6zLAg7n0RhFExKA4/XvMCqhFQbXaTsSyty4dbt324tKMZ5DaLLDYWA5x6ZcBFXSTHI8s/U1gi2SUeJGPIDrLi4MYtlb1D0o9ysuZgpeM9vDaKnJEpMozSbtQU/MmDbCYFw4iJsWBocCWfh5TLBIjSQ="
 
 install:
-  - make deps
+- make deps
 
 script:
-  - make test-ci
+- make test-ci
 
 after_success:
-  - test $TRAVIS_BRANCH = "master" && make release
+- make package
+- go get github.com/tcnksm/ghr
+- test $TRAVIS_BRANCH = "master" &&
+  ghr --username $GITHUB_USER --token $GITHUB_TOKEN --replace --prerelease --debug pre-release pkg/
+- test -n "$TRAVIS_TAG" &&
+  ghr --username $GITHUB_USER --token $GITHUB_TOKEN --debug $TRAVIS_TAG pkg/

@@ -22,7 +22,6 @@ deps:
 	@go get github.com/golang/lint/golint
 	@go get github.com/mitchellh/gox
 	@go get github.com/mattn/goveralls
-	@go get github.com/tcnksm/ghr
 	@go get github.com/golang/dep/cmd/dep
 	dep ensure
 
@@ -60,6 +59,3 @@ package: clean deps
 		rm -rf $${pkg}; \
 	done
 
-.PHONY: release
-release: package
-	ghr --username $(GITHUB_USER) --token $(GITHUB_TOKEN) --replace --prerelease --debug pre-release pkg/
