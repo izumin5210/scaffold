@@ -14,6 +14,7 @@ import (
 // UI is an interface for intaracting with the shell
 type UI interface {
 	Ask(query string) (string, error)
+	Error(msg string)
 	Status(prefix, message string, colorAttrs ColorAttrs)
 }
 

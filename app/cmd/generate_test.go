@@ -72,6 +72,8 @@ func Test_NewGenerateCommandFactory_WhenFailToGetScaffolds(t *testing.T) {
 		Perform().
 		Return(nil, errors.New("Failed to get scaffolds"))
 
+	ctx.ui.EXPECT().Error(gomock.Any()).MinTimes(1)
+
 	f := NewGenerateCommandFactory(ctx.getScaffolds, ctx.createScaffold, ctx.ui)
 	cmd, err := f()
 
@@ -112,6 +114,8 @@ func Test_Run_WhenArgListToShort(t *testing.T) {
 	defer ctx.ctrl.Finish()
 	cmd := getGenerateTestCommand(ctx)
 
+	ctx.ui.EXPECT().Error(gomock.Any()).MinTimes(1)
+
 	code := cmd.Run([]string{"foo"})
 
 	if actual, expected := code, ui.ExitCodeInvalidArgumentListLengthError; actual != expected {
@@ -123,6 +127,8 @@ func Test_Run_WhenArgumentListTooLong(t *testing.T) {
 	ctx := getGenerateTestContext(t)
 	defer ctx.ctrl.Finish()
 	cmd := getGenerateTestCommand(ctx)
+
+	ctx.ui.EXPECT().Error(gomock.Any()).MinTimes(1)
 
 	code := cmd.Run([]string{"foo", "bar", "baz"})
 
@@ -140,6 +146,8 @@ func Test_Run_WhenScaffoldsDoesNotExist(t *testing.T) {
 		scaffold.NewScaffold("/app/.scaffold/foo", &scaffold.Meta{}),
 	}
 	scffName, name := "bar", "qux"
+
+	ctx.ui.EXPECT().Error(gomock.Any()).MinTimes(1)
 
 	code := cmd.Run([]string{scffName, name})
 
@@ -163,6 +171,8 @@ func Test_Run_WhenFailToCreateScaffold(t *testing.T) {
 	ctx.createScaffold.EXPECT().
 		Perform(cmd.scaffolds[1], name).
 		Return(errors.New("Failed to create scaffolds"))
+
+	ctx.ui.EXPECT().Error(gomock.Any()).MinTimes(1)
 
 	code := cmd.Run([]string{scffName, name})
 

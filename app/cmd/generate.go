@@ -27,6 +27,7 @@ func NewGenerateCommandFactory(
 	return func() (cli.Command, error) {
 		scffs, err := getScaffolds.Perform()
 		if err != nil {
+			ui.Error("Cloud not load scaffolds")
 			return nil, errors.Wrap(err, "")
 		}
 		return &generateCommand{
@@ -59,14 +60,17 @@ func (c *generateCommand) Help() string {
 // It is an implementation of mitchellh/cli.Command#Run()
 func (c *generateCommand) Run(args []string) int {
 	if len(args) != 2 {
+		c.ui.Error(fmt.Sprintf("Invalid arguments: %v", args))
 		return ui.ExitCodeInvalidArgumentListLengthError
 	}
 	scffName, name := args[0], args[1]
 	scff := c.getScaffoldByName(scffName)
 	if scff == nil {
+		c.ui.Error(fmt.Sprintf("Could not found scaffold %q", scffName))
 		return ui.ExitCodeScffoldNotFoundError
 	}
 	if err := c.createScaffold.Perform(scff, name); err != nil {
+		c.ui.Error(fmt.Sprintf("Error: %s", err.Error()))
 		return ui.ExitCodeFailedToCreatetScaffoldsError
 	}
 	return ui.ExitCodeOK

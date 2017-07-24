@@ -44,6 +44,16 @@ func (_mr *MockUIMockRecorder) Ask(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "Ask", reflect.TypeOf((*MockUI)(nil).Ask), arg0)
 }
 
+// Error mocks base method
+func (_m *MockUI) Error(msg string) {
+	_m.ctrl.Call(_m, "Error", msg)
+}
+
+// Error indicates an expected call of Error
+func (_mr *MockUIMockRecorder) Error(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "Error", reflect.TypeOf((*MockUI)(nil).Error), arg0)
+}
+
 // Status mocks base method
 func (_m *MockUI) Status(prefix string, message string, colorAttrs ColorAttrs) {
 	_m.ctrl.Call(_m, "Status", prefix, message, colorAttrs)
