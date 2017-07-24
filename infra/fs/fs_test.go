@@ -13,7 +13,7 @@ func Test_GetDirs(t *testing.T) {
 	fs := &fs{afs: afs}
 
 	afs.Mkdir("/app/foo", os.ModeDir)
-	afs.Mkdir("/app/bar/foo", os.ModeDir)
+	afs.Mkdir("/app/foo/bar", os.ModeDir)
 	afs.Mkdir("/app/baz", os.ModeDir)
 	afs.Mkdir("/qux", os.ModeDir)
 	afs.Mkdir("/qux/quux", os.ModeDir)
@@ -25,7 +25,7 @@ func Test_GetDirs(t *testing.T) {
 		t.Errorf("Unexpected error %v", err)
 	}
 
-	if actual, expected := dirs, []string{"/app/foo", "/app/baz"}; reflect.DeepEqual(actual, expected) {
+	if actual, expected := dirs, []string{"baz", "foo"}; !reflect.DeepEqual(actual, expected) {
 		t.Errorf("GetDirs() returns %v, but expected %v", actual, expected)
 	}
 }
