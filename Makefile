@@ -1,5 +1,5 @@
 NAME := scaffold
-VERSION := 0.0.1
+VERSION := 0.1.0
 REVISION := $(shell git describe --always)
 LDFLAGS := -ldflags="-s -w -X \"main.Name=$(NAME)\" -X \"main.Version=$(VERSION)\" -X \"main.Revision=$(REVISION)\" -extldflags \"-static\""
 PACKAGE_DIRS := $(shell go list ./... 2> /dev/null | grep -v /vendor | grep -v /mock)
