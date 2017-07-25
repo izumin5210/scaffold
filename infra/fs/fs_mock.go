@@ -31,6 +31,19 @@ func (_m *MockFS) EXPECT() *MockFSMockRecorder {
 	return _m.recorder
 }
 
+// GetEntries mocks base method
+func (_m *MockFS) GetEntries(path string, recursive bool) ([]Entry, error) {
+	ret := _m.ctrl.Call(_m, "GetEntries", path, recursive)
+	ret0, _ := ret[0].([]Entry)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetEntries indicates an expected call of GetEntries
+func (_mr *MockFSMockRecorder) GetEntries(arg0, arg1 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "GetEntries", reflect.TypeOf((*MockFS)(nil).GetEntries), arg0, arg1)
+}
+
 // GetDirs mocks base method
 func (_m *MockFS) GetDirs(path string) ([]string, error) {
 	ret := _m.ctrl.Call(_m, "GetDirs", path)

@@ -9,6 +9,7 @@ import (
 
 // FS is filesystem wrapper interface
 type FS interface {
+	GetEntries(path string, recursive bool) ([]Entry, error)
 	GetDirs(path string) ([]string, error)
 	ReadFile(path string) ([]byte, error)
 	Walk(path string, cb func(path string, dir bool, err error) error) error
