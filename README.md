@@ -2,6 +2,7 @@
 [![Build Status](https://travis-ci.org/izumin5210/scaffold.svg?branch=master)](https://travis-ci.org/izumin5210/scaffold)
 [![Coverage Status](https://coveralls.io/repos/github/izumin5210/scaffold/badge.svg)](https://coveralls.io/github/izumin5210/scaffold)
 [![MIT License](https://img.shields.io/github/license/izumin5210/scaffold.svg)][license]
+[![Version](https://img.shields.io/github/release/izumin5210/scaffold.svg)](./releases)
 
 [![https://gyazo.com/756d165b512a3d93c08e2094eedecd86](https://i.gyazo.com/756d165b512a3d93c08e2094eedecd86.gif)](https://gyazo.com/756d165b512a3d93c08e2094eedecd86)
 
