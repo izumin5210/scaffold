@@ -69,7 +69,7 @@ func (f *fs) ReadFile(name string) ([]byte, error) {
 }
 
 func (f *fs) CreateDir(path string) error {
-	return f.afs.Mkdir(path, os.ModeDir)
+	return f.afs.MkdirAll(path, 0755)
 }
 
 func (f *fs) CreateFile(path string, content string) error {
