@@ -82,7 +82,10 @@ func (r *repo) Construct(
 		}
 
 		if err = r.fs.CreateFile(outputPath, content); err != nil {
-			return errors.Cause(err)
+			if conflicted {
+				return errors.Wrapf(err, "Failed to overwrite %q", outputPath)
+			}
+			return errors.Wrapf(err, "Failed to create %q", outputPath)
 		}
 		cb(outputPath, false, conflicted, scaffold.ConstructSuccess)
 	}

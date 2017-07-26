@@ -10,6 +10,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/izumin5210/scaffold/domain/scaffold"
 	"github.com/izumin5210/scaffold/infra/fs"
+	"github.com/pkg/errors"
 )
 
 type constructTestContext struct {
@@ -120,6 +121,31 @@ func setupConstructTest(
 				Return(nil).
 				Times(1)
 		}
+	}
+}
+
+func constructErrorTest(t *testing.T, fn func(ctx *constructTestContext)) {
+	ctx := getConstructTestContext(t)
+	defer ctx.ctrl.Finish()
+
+	fn(ctx)
+
+	err := ctx.repo.Construct(
+		ctx.scaffold,
+		ctx.name,
+		func(path string, dir, conflicted bool, status scaffold.ConstructStatus) {
+			t.Errorf("Unexpected callback call (%s, %t, %t, %v)", path, dir, conflicted, status)
+		},
+		func(path, oldContent, newContent string) bool {
+			if oldContent == newContent {
+				t.Errorf("Unexpected callback call (%s, %s, %s)", path, oldContent, newContent)
+			}
+			return true
+		},
+	)
+
+	if err == nil {
+		t.Error("Shoulr return error")
 	}
 }
 
@@ -279,4 +305,136 @@ func Test_Construct(t *testing.T) {
 			t.Errorf("ConstructCallback(%s, %t, ConstructStatus) should be called", p, entry.dir)
 		}
 	}
+}
+
+func Test_Construct_WhenFailedToGetEntries(t *testing.T) {
+	constructErrorTest(t, func(ctx *constructTestContext) {
+		ctx.fs.EXPECT().GetEntries(ctx.scffPath, true).
+			Return(nil, errors.New("error"))
+	})
+}
+
+func Test_Construct_WhenGetEntriesReturnBrokenPath(t *testing.T) {
+	constructErrorTest(t, func(ctx *constructTestContext) {
+		f, err := fs.NewFile(filepath.Join(ctx.scffPath, "{{name}"))
+		if err != nil {
+			t.Fatalf("Unexpected error %v", err)
+		}
+		ctx.fs.EXPECT().GetEntries(ctx.scffPath, true).
+			Return([]fs.Entry{f}, nil)
+	})
+}
+
+func Test_Construct_WhenGetEntriesReturnBrokenTemplate(t *testing.T) {
+	constructErrorTest(t, func(ctx *constructTestContext) {
+		f, err := fs.NewFile(filepath.Join(ctx.scffPath, "foo.go"))
+		if err != nil {
+			t.Fatalf("Unexpected error %v", err)
+		}
+		ctx.fs.EXPECT().GetEntries(ctx.scffPath, true).
+			Return([]fs.Entry{f}, nil)
+		ctx.fs.EXPECT().ReadFile(f.Path()).
+			Return([]byte("package {{name}"), nil)
+	})
+}
+
+func Test_Construct_WhenFailToReadFile(t *testing.T) {
+	constructErrorTest(t, func(ctx *constructTestContext) {
+		f, err := fs.NewFile(filepath.Join(ctx.scffPath, "foo.go"))
+		if err != nil {
+			t.Fatalf("Unexpected error %v", err)
+		}
+		ctx.fs.EXPECT().GetEntries(ctx.scffPath, true).
+			Return([]fs.Entry{f}, nil)
+		ctx.fs.EXPECT().ReadFile(f.Path()).
+			Return(nil, errors.New("error"))
+	})
+}
+
+func Test_Construct_WhenFailToCreateDir(t *testing.T) {
+	constructErrorTest(t, func(ctx *constructTestContext) {
+		d, err := fs.NewDir(filepath.Join(ctx.scffPath, "foo"))
+		if err != nil {
+			t.Fatalf("Unexpected error %v", err)
+		}
+		ctx.fs.EXPECT().GetEntries(ctx.scffPath, true).
+			Return([]fs.Entry{d}, nil)
+		ctx.fs.EXPECT().CreateDir(filepath.Join(ctx.rootPath, d.BaseName())).
+			Return(false, errors.New("error"))
+	})
+}
+
+func Test_Construct_WhenFailToCheckExistence(t *testing.T) {
+	constructErrorTest(t, func(ctx *constructTestContext) {
+		p := "foo.go"
+		f, err := fs.NewFile(filepath.Join(ctx.scffPath, p))
+		if err != nil {
+			t.Fatalf("Unexpected error %v", err)
+		}
+		ctx.fs.EXPECT().GetEntries(ctx.scffPath, true).
+			Return([]fs.Entry{f}, nil)
+		ctx.fs.EXPECT().ReadFile(f.Path()).
+			Return([]byte("package {{name}}"), nil)
+		ctx.fs.EXPECT().Exists(filepath.Join(ctx.rootPath, p)).
+			Return(false, errors.New("error"))
+	})
+}
+
+func Test_Construct_WhenFailToReadExistingFile(t *testing.T) {
+	constructErrorTest(t, func(ctx *constructTestContext) {
+		p := "foo.go"
+		f, err := fs.NewFile(filepath.Join(ctx.scffPath, p))
+		if err != nil {
+			t.Fatalf("Unexpected error %v", err)
+		}
+		ctx.fs.EXPECT().GetEntries(ctx.scffPath, true).
+			Return([]fs.Entry{f}, nil)
+		ctx.fs.EXPECT().ReadFile(f.Path()).
+			Return([]byte("package {{name}}"), nil)
+		outPath := filepath.Join(ctx.rootPath, p)
+		ctx.fs.EXPECT().Exists(outPath).
+			Return(true, nil)
+		ctx.fs.EXPECT().ReadFile(outPath).
+			Return(nil, errors.New("error"))
+	})
+}
+
+func Test_Construct_WhenFailToCreateFile(t *testing.T) {
+	constructErrorTest(t, func(ctx *constructTestContext) {
+		p := "foo.go"
+		f, err := fs.NewFile(filepath.Join(ctx.scffPath, p))
+		if err != nil {
+			t.Fatalf("Unexpected error %v", err)
+		}
+		ctx.fs.EXPECT().GetEntries(ctx.scffPath, true).
+			Return([]fs.Entry{f}, nil)
+		ctx.fs.EXPECT().ReadFile(f.Path()).
+			Return([]byte("package {{name}}"), nil)
+		outPath := filepath.Join(ctx.rootPath, p)
+		ctx.fs.EXPECT().Exists(outPath).
+			Return(false, nil)
+		ctx.fs.EXPECT().CreateFile(outPath, gomock.Any()).
+			Return(errors.New("error"))
+	})
+}
+
+func Test_Construct_WhenFailToOverwriteFile(t *testing.T) {
+	constructErrorTest(t, func(ctx *constructTestContext) {
+		p := "foo.go"
+		f, err := fs.NewFile(filepath.Join(ctx.scffPath, p))
+		if err != nil {
+			t.Fatalf("Unexpected error %v", err)
+		}
+		ctx.fs.EXPECT().GetEntries(ctx.scffPath, true).
+			Return([]fs.Entry{f}, nil)
+		ctx.fs.EXPECT().ReadFile(f.Path()).
+			Return([]byte("package {{name}}"), nil)
+		outPath := filepath.Join(ctx.rootPath, p)
+		ctx.fs.EXPECT().Exists(outPath).
+			Return(true, nil)
+		ctx.fs.EXPECT().ReadFile(outPath).
+			Return([]byte("package foo"), nil)
+		ctx.fs.EXPECT().CreateFile(outPath, gomock.Any()).
+			Return(errors.New("error"))
+	})
 }
