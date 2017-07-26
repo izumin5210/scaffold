@@ -2,6 +2,8 @@
 
 package scaffold
 
+import "path/filepath"
+
 // Scaffold represents an executable subcommand
 type Scaffold interface {
 	Path() string
@@ -11,27 +13,27 @@ type Scaffold interface {
 }
 
 type scaffold struct {
-	dir  *Directory
+	path string
 	meta *Meta
 }
 
 // NewScaffold reeturns a new scaffold object
 func NewScaffold(path string, meta *Meta) Scaffold {
 	return &scaffold{
-		dir:  EmptyDirectory(path),
+		path: path,
 		meta: meta,
 	}
 }
 
 func (s *scaffold) Path() string {
-	return s.dir.Path()
+	return s.path
 }
 
 func (s *scaffold) Name() string {
 	if len(s.meta.Name) > 0 {
 		return s.meta.Name
 	}
-	return s.dir.Name()
+	return filepath.Base(s.path)
 }
 
 func (s *scaffold) Synopsis() string {
