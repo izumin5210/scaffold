@@ -13,7 +13,7 @@ type FS interface {
 	GetDirs(path string) ([]string, error)
 	ReadFile(path string) ([]byte, error)
 	Walk(path string, cb func(path string, dir bool, err error) error) error
-	CreateDir(path string) error
+	CreateDir(path string) (bool, error)
 	CreateFile(path string, content string) error
 	Exists(path string) (bool, error)
 	DirExists(path string) (bool, error)
@@ -69,8 +69,17 @@ func (f *fs) ReadFile(name string) ([]byte, error) {
 	return f.afs.ReadFile(name)
 }
 
-func (f *fs) CreateDir(path string) error {
-	return f.afs.MkdirAll(path, 0755)
+func (f *fs) CreateDir(path string) (bool, error) {
+	if existing, err := f.afs.DirExists(path); err != nil {
+		return false, errors.Wrapf(err, "Failed to check existence of %q", path)
+	} else if !existing {
+		err := f.afs.MkdirAll(path, 0755)
+		if err != nil {
+			return false, errors.Wrapf(err, "Failed to create directory at %q", path)
+		}
+		return true, nil
+	}
+	return false, nil
 }
 
 func (f *fs) CreateFile(path string, content string) error {

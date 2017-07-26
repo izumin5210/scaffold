@@ -48,6 +48,51 @@ func Test_ReadFile(t *testing.T) {
 	}
 }
 
+func Test_CreateDir(t *testing.T) {
+	afs := afero.Afero{Fs: afero.NewMemMapFs()}
+	fs := &fs{afs: afs}
+
+	p := "/app/foo/bar"
+	ok, err := fs.CreateDir(p)
+
+	if err != nil {
+		t.Errorf("Unexpected error %v", err)
+	}
+
+	if !ok {
+		t.Error("Should return true")
+	}
+
+	if existing, err := afs.DirExists(p); err != nil {
+		t.Errorf("Unexpected error %v", err)
+	} else if !existing {
+		t.Error("Should exist")
+	}
+}
+
+func Test_CreateDir_WhenAlreadyExisted(t *testing.T) {
+	afs := afero.Afero{Fs: afero.NewMemMapFs()}
+	fs := &fs{afs: afs}
+
+	p := "/app/foo/bar"
+	afs.Mkdir(p, 0755)
+	ok, err := fs.CreateDir(p)
+
+	if err != nil {
+		t.Errorf("Unexpected error %v", err)
+	}
+
+	if ok {
+		t.Error("Should return false")
+	}
+
+	if existing, err := afs.DirExists(p); err != nil {
+		t.Errorf("Unexpected error %v", err)
+	} else if !existing {
+		t.Error("Should exist")
+	}
+}
+
 func Test_Walk(t *testing.T) {
 	afs := afero.Afero{Fs: afero.NewMemMapFs()}
 	fs := &fs{afs: afs}

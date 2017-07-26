@@ -83,10 +83,11 @@ func (_mr *MockFSMockRecorder) Walk(arg0, arg1 interface{}) *gomock.Call {
 }
 
 // CreateDir mocks base method
-func (_m *MockFS) CreateDir(path string) error {
+func (_m *MockFS) CreateDir(path string) (bool, error) {
 	ret := _m.ctrl.Call(_m, "CreateDir", path)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // CreateDir indicates an expected call of CreateDir
