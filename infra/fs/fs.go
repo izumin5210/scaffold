@@ -26,6 +26,11 @@ func New() FS {
 }
 
 func (f *fs) GetDirs(name string) ([]string, error) {
+	if ok, err := f.afs.IsDir(name); err != nil {
+		return nil, errors.Cause(err)
+	} else if !ok {
+		return nil, errors.Errorf("GetDirs(string) requires a directory path, %q is a file", name)
+	}
 	entries, err := f.afs.ReadDir(name)
 	if err != nil {
 		return nil, errors.Cause(err)

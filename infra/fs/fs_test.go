@@ -30,6 +30,37 @@ func Test_GetDirs(t *testing.T) {
 	}
 }
 
+func Test_GetDirs_WhenPathDoesNotExist(t *testing.T) {
+	afs := afero.Afero{Fs: afero.NewMemMapFs()}
+	fs := &fs{afs: afs}
+
+	dirs, err := fs.GetDirs("/app/foo/bar")
+
+	if dirs != nil {
+		t.Errorf("Should not return any directories")
+	}
+
+	if err == nil {
+		t.Errorf("Should return an error")
+	}
+}
+
+func Test_GetDirs_WhenPathPointsToFile(t *testing.T) {
+	afs := afero.Afero{Fs: afero.NewMemMapFs()}
+	fs := &fs{afs: afs}
+
+	afs.WriteFile("/app/foo", []byte("awesome file"), 0666)
+	dirs, err := fs.GetDirs("/app/foo")
+
+	if dirs != nil {
+		t.Errorf("Should not return any directories")
+	}
+
+	if err == nil {
+		t.Errorf("Should return an error")
+	}
+}
+
 func Test_ReadFile(t *testing.T) {
 	afs := afero.Afero{Fs: afero.NewMemMapFs()}
 	fs := &fs{afs: afs}
@@ -90,5 +121,76 @@ func Test_CreateDir_WhenAlreadyExisted(t *testing.T) {
 		t.Errorf("Unexpected error %v", err)
 	} else if !existing {
 		t.Error("Should exist")
+	}
+}
+
+func Test_CreateFile(t *testing.T) {
+	afs := afero.Afero{Fs: afero.NewMemMapFs()}
+	fs := &fs{afs: afs}
+
+	err := fs.CreateFile("/app/foo", "foobarbaz")
+
+	if err != nil {
+		t.Errorf("Unexpected error %v", err)
+	}
+
+	if body, err := afs.ReadFile("/app/foo"); err != nil {
+		t.Errorf("Unexpected error %v", err)
+	} else if actual, expected := string(body), "foobarbaz"; actual != expected {
+		t.Errorf("Created file content is %q, want %q", actual, expected)
+	}
+}
+
+func Test_Exists(t *testing.T) {
+	afs := afero.Afero{Fs: afero.NewMemMapFs()}
+	fs := &fs{afs: afs}
+
+	afs.Mkdir("/foo", 0755)
+	afs.WriteFile("/bar", []byte("baz"), 0644)
+
+	tests := []struct {
+		in  string
+		out bool
+	}{
+		{in: "/foo", out: true},
+		{in: "/bar", out: true},
+		{in: "/baz", out: false},
+		{in: "foo", out: false},
+		{in: "foo/bar/baz", out: false},
+	}
+
+	for _, ts := range tests {
+		if ok, err := fs.Exists(ts.in); err != nil {
+			t.Errorf("Unexpected error %v", err)
+		} else if actual, expected := ok, ts.out; actual != expected {
+			t.Errorf("Returns %t, want %t", actual, expected)
+		}
+	}
+}
+
+func Test_DirExists(t *testing.T) {
+	afs := afero.Afero{Fs: afero.NewMemMapFs()}
+	fs := &fs{afs: afs}
+
+	afs.Mkdir("/foo", 0755)
+	afs.WriteFile("/bar", []byte("baz"), 0644)
+
+	tests := []struct {
+		in  string
+		out bool
+	}{
+		{in: "/foo", out: true},
+		{in: "/bar", out: false},
+		{in: "/baz", out: false},
+		{in: "foo", out: false},
+		{in: "foo/bar/baz", out: false},
+	}
+
+	for _, ts := range tests {
+		if ok, err := fs.DirExists(ts.in); err != nil {
+			t.Errorf("Unexpected error %v", err)
+		} else if actual, expected := ok, ts.out; actual != expected {
+			t.Errorf("Returns %t, want %t", actual, expected)
+		}
 	}
 }
