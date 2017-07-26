@@ -4,6 +4,7 @@ import (
 	"path/filepath"
 
 	"github.com/izumin5210/scaffold/domain/scaffold"
+	"github.com/pkg/errors"
 )
 
 func (r *repo) Construct(
@@ -14,71 +15,104 @@ func (r *repo) Construct(
 ) error {
 	tmpl := scaffold.NewTemplate(name)
 	metaPath := filepath.Join(scff.Path(), "meta.toml")
-	err := r.fs.Walk(scff.Path(), func(path string, dir bool, err error) error {
-		if err != nil {
-			return err
-		}
-		if path == metaPath {
-			return nil
-		}
+	entries, err := r.fs.GetEntries(scff.Path(), true)
+	if err != nil {
+		return errors.Wrapf(err, "Failed to get entries under %q", scff.Path())
+	}
 
-		relpath, err := filepath.Rel(scff.Path(), path)
+	createdDirs := map[string]struct{}{}
+
+	for _, entry := range entries {
+		if entry.Path() == metaPath {
+			continue
+		}
+		relpath, err := filepath.Rel(scff.Path(), entry.Path())
 		if err != nil {
-			return err
+			return errors.Cause(err)
 		}
 		outputPath, err := tmpl.Compile(filepath.Join(r.rootPath, relpath))
 		if err != nil {
-			return err
+			return errors.Cause(err)
 		}
 
-		if dir {
-			if exists, err := r.fs.DirExists(outputPath); exists || err != nil {
-				if exists && err == nil {
-					cb(outputPath, true, false, scaffold.ConstructSkipped)
+		// construct directory
+		if entry.IsDir() {
+			if _, ok := createdDirs[outputPath]; !ok {
+				if err := r.createDir(outputPath, cb); err != nil {
+					return errors.Cause(err)
 				}
-				return err
+				createdDirs[outputPath] = struct{}{}
 			}
-			err = r.fs.CreateDir(outputPath)
-			if err == nil {
-				cb(outputPath, true, false, scaffold.ConstructSuccess)
-			}
-			return err
-		}
-
-		raw, err := r.fs.ReadFile(path)
-		if err != nil {
-			return err
-		}
-		compiled, err := tmpl.Compile(string(raw))
-		if err != nil {
-			return err
-		}
-		content := string(compiled)
-		conflicted := false
-
-		if exists, err := r.fs.Exists(outputPath); exists || err != nil {
 			if err != nil {
 				return err
 			}
-			if exists {
-				existing, err := r.fs.ReadFile(outputPath)
-				if err != nil {
-					return err
+			continue
+		}
+
+		// construct file
+		content, err := r.getCompiledContent(tmpl, entry.Path())
+		if err != nil {
+			return errors.Cause(err)
+		}
+		conflicted := false
+
+		parentDir := filepath.Dir(outputPath)
+		if parentDir != r.rootPath {
+			if _, ok := createdDirs[parentDir]; !ok {
+				if err := r.createDir(parentDir, cb); err != nil {
+					return errors.Cause(err)
 				}
-				existingContent := string(existing)
-				conflicted = content != existingContent
-				if !conflicted || !conflctedCb(outputPath, existingContent, content) {
-					cb(outputPath, false, conflicted, scaffold.ConstructSkipped)
-					return nil
-				}
+				createdDirs[parentDir] = struct{}{}
 			}
 		}
 
-		err = r.fs.CreateFile(outputPath, content)
-		if err == nil {
-			cb(outputPath, false, conflicted, scaffold.ConstructSuccess)
+		if exists, err := r.fs.Exists(outputPath); err != nil {
+			return errors.Cause(err)
+		} else if exists {
+			existing, err := r.fs.ReadFile(outputPath)
+			if err != nil {
+				return errors.Cause(err)
+			}
+			existingContent := string(existing)
+			conflicted = content != existingContent
+			if !conflicted || !conflctedCb(outputPath, existingContent, content) {
+				cb(outputPath, false, conflicted, scaffold.ConstructSkipped)
+				continue
+			}
 		}
-		return err
-	})
-	return err
+
+		if err = r.fs.CreateFile(outputPath, content); err != nil {
+			if conflicted {
+				return errors.Wrapf(err, "Failed to overwrite %q", outputPath)
+			}
+			return errors.Wrapf(err, "Failed to create %q", outputPath)
+		}
+		cb(outputPath, false, conflicted, scaffold.ConstructSuccess)
+	}
+	return errors.Cause(err)
+}
+
+func (r *repo) createDir(path string, cb scaffold.ConstructCallback) error {
+	ok, err := r.fs.CreateDir(path)
+	if err != nil {
+		return errors.Wrapf(err, "Failed to create directory %q", path)
+	}
+	if ok {
+		cb(path, true, false, scaffold.ConstructSuccess)
+	} else {
+		cb(path, true, false, scaffold.ConstructSkipped)
+	}
+	return nil
+}
+
+func (r *repo) getCompiledContent(tmpl scaffold.Template, path string) (string, error) {
+	raw, err := r.fs.ReadFile(path)
+	if err != nil {
+		return "", errors.Wrapf(err, "Failed to read template %q", path)
+	}
+	compiled, err := tmpl.Compile(string(raw))
+	if err != nil {
+		return "", errors.Wrapf(err, "Failed to complile template %q", path)
+	}
+	return string(compiled), nil
 }

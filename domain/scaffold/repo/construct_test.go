@@ -10,9 +10,11 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/izumin5210/scaffold/domain/scaffold"
 	"github.com/izumin5210/scaffold/infra/fs"
+	"github.com/pkg/errors"
 )
 
 type constructTestContext struct {
+	t         *testing.T
 	ctrl      *gomock.Controller
 	fs        *fs.MockFS
 	rootPath  string
@@ -31,6 +33,7 @@ type constructCallbackCall struct {
 
 type constructTestEntry struct {
 	dir             bool
+	edge            bool
 	template        string
 	outputPath      string
 	outputContent   string
@@ -44,9 +47,10 @@ func getConstructTestContext(t *testing.T) *constructTestContext {
 	fs := fs.NewMockFS(ctrl)
 	rootPath := "/app"
 	tmplsPath := filepath.Join(rootPath, ".scaffold")
-	scffPath := filepath.Join(tmplsPath, "foo")
+	scffPath := filepath.Join(tmplsPath, "tmpl")
 
 	return &constructTestContext{
+		t:         t,
 		ctrl:      ctrl,
 		fs:        fs,
 		rootPath:  rootPath,
@@ -63,14 +67,18 @@ func setupConstructTest(
 	entriesByPath map[string]*constructTestEntry,
 ) {
 	// Stubbing fs.Walk()
-	ctx.fs.EXPECT().Walk(ctx.scffPath, gomock.Any()).
-		Do(func(_ string, cb func(path string, dir bool, err error) error) error {
-			for path, entry := range entriesByPath {
-				cb(filepath.Join(ctx.scffPath, path), entry.dir, nil)
+	entries := []fs.Entry{}
+	for path, attrs := range entriesByPath {
+		if !attrs.edge {
+			entry, err := fs.NewEntry(filepath.Join(ctx.scffPath, path), attrs.dir)
+			if err != nil {
+				ctx.t.Fatalf("Unexpected error %v", err)
 			}
-			return nil
-		}).
-		Times(1)
+			entries = append(entries, entry)
+		}
+	}
+	ctx.fs.EXPECT().GetEntries(ctx.scffPath, true).
+		Return(entries, nil)
 
 	for path, entry := range entriesByPath {
 		// Should skip meta.toml
@@ -81,12 +89,8 @@ func setupConstructTest(
 		templateAbsPath := filepath.Join(ctx.scffPath, path)
 		outputAbsPath := filepath.Join(ctx.rootPath, entry.outputPath)
 
-		// Stubbing fs.Exists() and fs.DirExists()
-		if entry.dir {
-			ctx.fs.EXPECT().DirExists(outputAbsPath).
-				Return(entry.existing, nil).
-				AnyTimes()
-		} else {
+		// Stubbing fs.Exists()
+		if !entry.dir {
 			ctx.fs.EXPECT().Exists(outputAbsPath).
 				Return(entry.existing, nil).
 				AnyTimes()
@@ -105,9 +109,9 @@ func setupConstructTest(
 		}
 
 		// Stubbing fs.CreateDir()
-		if entry.dir && !entry.existing {
+		if entry.dir {
 			ctx.fs.EXPECT().CreateDir(outputAbsPath).
-				Return(nil).
+				Return(!entry.existing, nil).
 				Times(1)
 		}
 
@@ -120,261 +124,125 @@ func setupConstructTest(
 	}
 }
 
+func constructErrorTest(t *testing.T, fn func(ctx *constructTestContext)) {
+	ctx := getConstructTestContext(t)
+	defer ctx.ctrl.Finish()
+
+	fn(ctx)
+
+	err := ctx.repo.Construct(
+		ctx.scaffold,
+		ctx.name,
+		func(path string, dir, conflicted bool, status scaffold.ConstructStatus) {
+			t.Errorf("Unexpected callback call (%s, %t, %t, %v)", path, dir, conflicted, status)
+		},
+		func(path, oldContent, newContent string) bool {
+			if oldContent == newContent {
+				t.Errorf("Unexpected callback call (%s, %s, %s)", path, oldContent, newContent)
+			}
+			return true
+		},
+	)
+
+	if err == nil {
+		t.Error("Shoulr return error")
+	}
+}
+
 func Test_Construct(t *testing.T) {
 	ctx := getConstructTestContext(t)
 	defer ctx.ctrl.Finish()
 
+	// ├── foo
+	// │   ├── qux
+	// │   │   └── corge.go
+	// │   └── qux
+	// │       └── grault.go
+	// ├── bar
+	// └── baz
+	// │   ├── {{name}}
+	// │   │   └── garlpy.go
+	// │   ├── {{name}}.go
+	// │   └── {{name}}_test.go
+	// └── meta.toml
+	// └── waldo.go
 	entries := map[string]*constructTestEntry{
 		"bar": {
 			dir:        true,
 			outputPath: "bar",
 			existing:   false,
 		},
-		"bar/baz": {
-			dir:           false,
-			template:      "{{name}} baz",
-			outputPath:    "bar/baz",
-			outputContent: fmt.Sprintf("%s baz", ctx.name),
-			existing:      false,
-		},
-		"bar/qux": {
+		"baz": {
 			dir:        true,
-			outputPath: "bar/qux",
+			edge:       true,
+			outputPath: "baz",
+			existing:   true,
+		},
+		"baz/{{name}}": {
+			dir:        true,
+			edge:       true,
+			outputPath: fmt.Sprintf("baz/%s", ctx.name),
 			existing:   false,
 		},
-		"bar/qux/quux": {
+		"baz/{{name}}.go": {
+			dir:             false,
+			template:        "// baz/{{name}}.go",
+			outputPath:      fmt.Sprintf("baz/%s.go", ctx.name),
+			outputContent:   fmt.Sprintf("// baz/%s.go", ctx.name),
+			existing:        true,
+			existingContent: fmt.Sprintf("// baz/%s.go", ctx.name),
+		},
+		"baz/{{name}}/garply.go": {
 			dir:           false,
-			template:      "{{name}} quux",
-			outputPath:    "bar/qux/quux",
-			outputContent: fmt.Sprintf("%s quux", ctx.name),
+			template:      "// baz/{{name}}/garply.go",
+			outputPath:    fmt.Sprintf("baz/%s/garply.go", ctx.name),
+			outputContent: fmt.Sprintf("// baz/%s/garply.go", ctx.name),
 			existing:      false,
 		},
-		"bar/qux/{{name}}": {
-			dir:        true,
-			outputPath: fmt.Sprintf("bar/qux/%s", ctx.name),
-			existing:   false,
-		},
-		"bar/qux/{{name}}/{{name}}_type.go": {
-			dir:           false,
-			template:      "package {{name}}\n\n type {{name}}Type []string\n",
-			outputPath:    fmt.Sprintf("bar/qux/%s/%s_type.go", ctx.name, ctx.name),
-			outputContent: fmt.Sprintf("package %s\n\n type %sType []string\n", ctx.name, ctx.name),
-			existing:      false,
-		},
-		"corge": {
-			dir:           false,
-			template:      "",
-			outputPath:    "corge",
-			outputContent: "",
-			existing:      false,
+		"baz/{{name}}_test.go": {
+			dir:             false,
+			template:        "// baz/{{name}}_test.go",
+			outputPath:      fmt.Sprintf("baz/%s_test.go", ctx.name),
+			outputContent:   fmt.Sprintf("// baz/%s_test.go", ctx.name),
+			existing:        true,
+			existingContent: fmt.Sprintf("// baz/%s.go", ctx.name),
+			overwriting:     true,
 		},
 		"meta.toml": {
 			dir: false,
 		},
-	}
-
-	setupConstructTest(ctx, entries)
-
-	callbackCalls := map[string]*constructCallbackCall{}
-
-	err := ctx.repo.Construct(
-		ctx.scaffold,
-		ctx.name,
-		func(path string, dir, conflicted bool, status scaffold.ConstructStatus) {
-			if conflicted {
-				t.Errorf("Unexpected conflict detected: %s", path)
-			}
-			callbackCalls[path] = &constructCallbackCall{dir: dir, conflicted: conflicted, status: status}
-		},
-		func(path, oldContent, newContent string) bool {
-			t.Errorf("Unexpected conflict detected: %s", path)
-			return false
-		},
-	)
-
-	if err != nil {
-		t.Errorf("Unexpected error %v", err)
-	}
-
-	if _, ok := callbackCalls["meta.toml"]; ok {
-		t.Error("meta.toml should be ignored")
-	}
-
-	for path, entry := range entries {
-		if path == "meta.toml" {
-			continue
-		}
-		p := filepath.Join(ctx.rootPath, entry.outputPath)
-		if c, ok := callbackCalls[p]; !ok {
-			t.Errorf("ConstructCallback(%s, %t, %s) should be called", p, entry.dir, scaffold.ConstructSuccess)
-		} else if !c.status.IsSuccess() {
-			t.Errorf("ConstructCallback(%s, %t, %s) was called, want (%s, %t, %s)", p, c.dir, c.status, p, entry.dir, scaffold.ConstructSuccess)
-		}
-	}
-}
-
-func Test_Construct_FileExists(t *testing.T) {
-	ctx := getConstructTestContext(t)
-	defer ctx.ctrl.Finish()
-
-	entries := map[string]*constructTestEntry{
-		"bar": {
-			dir:             false,
-			template:        "{{name}} bar",
-			outputPath:      "bar",
-			outputContent:   fmt.Sprintf("%s bar", ctx.name),
-			existing:        true,
-			existingContent: fmt.Sprintf("%s bar", ctx.name),
-		},
-		"baz": {
-			dir:             false,
-			template:        "{{name}} baz",
-			outputPath:      "baz",
-			outputContent:   fmt.Sprintf("%s baz", ctx.name),
-			existing:        true,
-			existingContent: fmt.Sprintf("%s baz", ctx.name),
-		},
-	}
-
-	setupConstructTest(ctx, entries)
-
-	callbackCalls := map[string]*constructCallbackCall{}
-
-	err := ctx.repo.Construct(
-		ctx.scaffold,
-		ctx.name,
-		func(path string, dir, conflicted bool, status scaffold.ConstructStatus) {
-			if conflicted {
-				t.Errorf("Unexpected conflict detected: %s", path)
-			}
-			callbackCalls[path] = &constructCallbackCall{dir: dir, status: status}
-		},
-		func(path, oldContent, newContent string) bool {
-			t.Errorf("Unexpected conflict detected: %s", path)
-			return false
-		},
-	)
-
-	for _, entry := range entries {
-		p := filepath.Join(ctx.rootPath, entry.outputPath)
-		if c, ok := callbackCalls[p]; ok {
-			expected := scaffold.ConstructSuccess
-			if entry.existing {
-				expected = scaffold.ConstructSkipped
-			}
-			if actual := c.status; actual != expected {
-				t.Errorf("ConstructCallback(%s, %t, %s) was called, want (%s, %t, %s)", p, c.dir, actual, p, entry.dir, expected)
-			}
-		} else {
-			t.Errorf("ConstructCallback(%s, %t, ConstructStatus) should be called", p, entry.dir)
-		}
-	}
-
-	if err != nil {
-		t.Errorf("Unexpected error %v", err)
-	}
-}
-
-func Test_Construct_DirExists(t *testing.T) {
-	ctx := getConstructTestContext(t)
-	defer ctx.ctrl.Finish()
-
-	entries := map[string]*constructTestEntry{
-		"bar": {
+		"foo/quux": {
 			dir:        true,
-			outputPath: "bar",
-			existing:   true,
-		},
-		"bar/baz": {
-			dir:           false,
-			template:      "{{name}} baz",
-			outputPath:    "bar/baz",
-			outputContent: fmt.Sprintf("%s baz", ctx.name),
-			existing:      false,
-		},
-		"qux": {
-			dir:        true,
-			outputPath: "qux",
+			edge:       true,
+			outputPath: "foo/quux",
 			existing:   false,
 		},
-		"qux/quux": {
+		"foo/quux/grault.go": {
 			dir:           false,
-			template:      "{{name}} quux",
-			outputPath:    "qux/quux",
-			outputContent: fmt.Sprintf("%s quux", ctx.name),
+			template:      "// foo/quux/grault.go",
+			outputPath:    "foo/quux/grault.go",
+			outputContent: "// foo/quux/grault.go",
 			existing:      false,
 		},
-	}
-
-	callbackCalls := map[string]*constructCallbackCall{}
-
-	setupConstructTest(ctx, entries)
-
-	err := ctx.repo.Construct(
-		ctx.scaffold,
-		ctx.name,
-		func(path string, dir, conflicted bool, status scaffold.ConstructStatus) {
-			if conflicted {
-				t.Errorf("Unexpected conflict detected: %s", path)
-			}
-			callbackCalls[path] = &constructCallbackCall{dir: dir, status: status}
+		"foo/qux": {
+			dir:        true,
+			edge:       true,
+			outputPath: "foo/qux",
+			existing:   false,
 		},
-		func(path, oldContent, newContent string) bool {
-			t.Errorf("Unexpected conflict detected: %s", path)
-			return false
+		"foo/qux/corge.go": {
+			dir:           false,
+			template:      "// foo/qux/corge.go",
+			outputPath:    "foo/qux/corge.go",
+			outputContent: "// foo/qux/corge.go",
+			existing:      false,
 		},
-	)
-
-	for _, entry := range entries {
-		p := filepath.Join(ctx.rootPath, entry.outputPath)
-		if c, ok := callbackCalls[p]; ok {
-			expected := scaffold.ConstructSuccess
-			if entry.existing {
-				expected = scaffold.ConstructSkipped
-			}
-			if actual := c.status; actual != expected {
-				t.Errorf("ConstructCallback(%s, %t, %s) was called, want (%s, %t, %s)", p, c.dir, actual, p, entry.dir, expected)
-			}
-		} else {
-			t.Errorf("ConstructCallback(%s, %t, ConstructStatus) should be called", p, entry.dir)
-		}
-	}
-
-	if err != nil {
-		t.Errorf("Unexpected error %v", err)
-	}
-}
-
-func Test_Construct_WhenDetectConflicts(t *testing.T) {
-	ctx := getConstructTestContext(t)
-	defer ctx.ctrl.Finish()
-
-	entries := map[string]*constructTestEntry{
-		"bar": {
-			dir:             false,
-			template:        "{{name}} bar",
-			outputPath:      "bar",
-			outputContent:   fmt.Sprintf("%s bar", ctx.name),
-			existing:        true,
-			existingContent: fmt.Sprintf("%s bar", ctx.name),
-		},
-		"baz": {
-			dir:             false,
-			template:        "{{name}} baz",
-			outputPath:      "baz",
-			outputContent:   fmt.Sprintf("%s baz", ctx.name),
-			existing:        true,
-			existingContent: "bazbaz",
-			overwriting:     true,
-		},
-		"qux": {
-			dir:             false,
-			template:        "{{name}} qux",
-			outputPath:      "qux",
-			outputContent:   fmt.Sprintf("%s qux", ctx.name),
-			existing:        true,
-			existingContent: "quxqux",
-			overwriting:     false,
+		"waldo.go": {
+			dir:           false,
+			template:      "// waldo.go",
+			outputPath:    "waldo.go",
+			outputContent: "// waldo.go",
+			existing:      false,
 		},
 	}
 
@@ -409,25 +277,164 @@ func Test_Construct_WhenDetectConflicts(t *testing.T) {
 		},
 	)
 
-	for _, entry := range entries {
+	if err != nil {
+		t.Errorf("Unexpected error %v", err)
+	}
+
+	for path, entry := range entries {
+		if path == "meta.toml" {
+			continue
+		}
 		p := filepath.Join(ctx.rootPath, entry.outputPath)
 		if c, ok := callbackCalls[p]; ok {
-			expected := scaffold.ConstructSuccess
-			if entry.existing && !entry.overwriting {
-				expected = scaffold.ConstructSkipped
-			}
-			if entry.outputContent != entry.existingContent && !c.conflicted {
-				t.Errorf("3rd argument ConstructCallback(%s, bool, bool, ConstructStatus) was %t, want %t", p, true, false)
-			}
-			if actual := c.status; actual != expected {
-				t.Errorf("ConstructCallback(%s, %t, %s) was called, want (%s, %t, %s)", p, c.dir, actual, p, entry.dir, expected)
+			if path == "meta.toml" {
+				t.Error("meta.toml should be ignored")
+			} else {
+				expected := scaffold.ConstructSuccess
+				if entry.existing && !entry.overwriting {
+					expected = scaffold.ConstructSkipped
+				}
+				if entry.existing && entry.outputContent != entry.existingContent && !c.conflicted {
+					t.Errorf("3rd argument ConstructCallback(%s, bool, bool, ConstructStatus) was %t, want %t", p, true, false)
+				}
+				if actual := c.status; actual != expected {
+					t.Errorf("ConstructCallback(%s, %t, %s) was called, want (%s, %t, %s)", p, c.dir, actual, p, entry.dir, expected)
+				}
 			}
 		} else {
 			t.Errorf("ConstructCallback(%s, %t, ConstructStatus) should be called", p, entry.dir)
 		}
 	}
+}
 
-	if err != nil {
-		t.Errorf("Unexpected error %v", err)
-	}
+func Test_Construct_WhenFailedToGetEntries(t *testing.T) {
+	constructErrorTest(t, func(ctx *constructTestContext) {
+		ctx.fs.EXPECT().GetEntries(ctx.scffPath, true).
+			Return(nil, errors.New("error"))
+	})
+}
+
+func Test_Construct_WhenGetEntriesReturnBrokenPath(t *testing.T) {
+	constructErrorTest(t, func(ctx *constructTestContext) {
+		f, err := fs.NewFile(filepath.Join(ctx.scffPath, "{{name}"))
+		if err != nil {
+			t.Fatalf("Unexpected error %v", err)
+		}
+		ctx.fs.EXPECT().GetEntries(ctx.scffPath, true).
+			Return([]fs.Entry{f}, nil)
+	})
+}
+
+func Test_Construct_WhenGetEntriesReturnBrokenTemplate(t *testing.T) {
+	constructErrorTest(t, func(ctx *constructTestContext) {
+		f, err := fs.NewFile(filepath.Join(ctx.scffPath, "foo.go"))
+		if err != nil {
+			t.Fatalf("Unexpected error %v", err)
+		}
+		ctx.fs.EXPECT().GetEntries(ctx.scffPath, true).
+			Return([]fs.Entry{f}, nil)
+		ctx.fs.EXPECT().ReadFile(f.Path()).
+			Return([]byte("package {{name}"), nil)
+	})
+}
+
+func Test_Construct_WhenFailToReadFile(t *testing.T) {
+	constructErrorTest(t, func(ctx *constructTestContext) {
+		f, err := fs.NewFile(filepath.Join(ctx.scffPath, "foo.go"))
+		if err != nil {
+			t.Fatalf("Unexpected error %v", err)
+		}
+		ctx.fs.EXPECT().GetEntries(ctx.scffPath, true).
+			Return([]fs.Entry{f}, nil)
+		ctx.fs.EXPECT().ReadFile(f.Path()).
+			Return(nil, errors.New("error"))
+	})
+}
+
+func Test_Construct_WhenFailToCreateDir(t *testing.T) {
+	constructErrorTest(t, func(ctx *constructTestContext) {
+		d, err := fs.NewDir(filepath.Join(ctx.scffPath, "foo"))
+		if err != nil {
+			t.Fatalf("Unexpected error %v", err)
+		}
+		ctx.fs.EXPECT().GetEntries(ctx.scffPath, true).
+			Return([]fs.Entry{d}, nil)
+		ctx.fs.EXPECT().CreateDir(filepath.Join(ctx.rootPath, d.BaseName())).
+			Return(false, errors.New("error"))
+	})
+}
+
+func Test_Construct_WhenFailToCheckExistence(t *testing.T) {
+	constructErrorTest(t, func(ctx *constructTestContext) {
+		p := "foo.go"
+		f, err := fs.NewFile(filepath.Join(ctx.scffPath, p))
+		if err != nil {
+			t.Fatalf("Unexpected error %v", err)
+		}
+		ctx.fs.EXPECT().GetEntries(ctx.scffPath, true).
+			Return([]fs.Entry{f}, nil)
+		ctx.fs.EXPECT().ReadFile(f.Path()).
+			Return([]byte("package {{name}}"), nil)
+		ctx.fs.EXPECT().Exists(filepath.Join(ctx.rootPath, p)).
+			Return(false, errors.New("error"))
+	})
+}
+
+func Test_Construct_WhenFailToReadExistingFile(t *testing.T) {
+	constructErrorTest(t, func(ctx *constructTestContext) {
+		p := "foo.go"
+		f, err := fs.NewFile(filepath.Join(ctx.scffPath, p))
+		if err != nil {
+			t.Fatalf("Unexpected error %v", err)
+		}
+		ctx.fs.EXPECT().GetEntries(ctx.scffPath, true).
+			Return([]fs.Entry{f}, nil)
+		ctx.fs.EXPECT().ReadFile(f.Path()).
+			Return([]byte("package {{name}}"), nil)
+		outPath := filepath.Join(ctx.rootPath, p)
+		ctx.fs.EXPECT().Exists(outPath).
+			Return(true, nil)
+		ctx.fs.EXPECT().ReadFile(outPath).
+			Return(nil, errors.New("error"))
+	})
+}
+
+func Test_Construct_WhenFailToCreateFile(t *testing.T) {
+	constructErrorTest(t, func(ctx *constructTestContext) {
+		p := "foo.go"
+		f, err := fs.NewFile(filepath.Join(ctx.scffPath, p))
+		if err != nil {
+			t.Fatalf("Unexpected error %v", err)
+		}
+		ctx.fs.EXPECT().GetEntries(ctx.scffPath, true).
+			Return([]fs.Entry{f}, nil)
+		ctx.fs.EXPECT().ReadFile(f.Path()).
+			Return([]byte("package {{name}}"), nil)
+		outPath := filepath.Join(ctx.rootPath, p)
+		ctx.fs.EXPECT().Exists(outPath).
+			Return(false, nil)
+		ctx.fs.EXPECT().CreateFile(outPath, gomock.Any()).
+			Return(errors.New("error"))
+	})
+}
+
+func Test_Construct_WhenFailToOverwriteFile(t *testing.T) {
+	constructErrorTest(t, func(ctx *constructTestContext) {
+		p := "foo.go"
+		f, err := fs.NewFile(filepath.Join(ctx.scffPath, p))
+		if err != nil {
+			t.Fatalf("Unexpected error %v", err)
+		}
+		ctx.fs.EXPECT().GetEntries(ctx.scffPath, true).
+			Return([]fs.Entry{f}, nil)
+		ctx.fs.EXPECT().ReadFile(f.Path()).
+			Return([]byte("package {{name}}"), nil)
+		outPath := filepath.Join(ctx.rootPath, p)
+		ctx.fs.EXPECT().Exists(outPath).
+			Return(true, nil)
+		ctx.fs.EXPECT().ReadFile(outPath).
+			Return([]byte("package foo"), nil)
+		ctx.fs.EXPECT().CreateFile(outPath, gomock.Any()).
+			Return(errors.New("error"))
+	})
 }

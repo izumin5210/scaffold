@@ -64,3 +64,24 @@ func Test_GetAll(t *testing.T) {
 		}
 	}
 }
+
+func Test_GetAll_WhenFailToGetDirs(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockFS := fs.NewMockFS(ctrl)
+
+	repo := New("/app", "/app/.scaffold", mockFS)
+
+	mockFS.EXPECT().GetDirs("/app/.scaffold").
+		Return(nil, errors.New("error"))
+
+	scffs, err := repo.GetAll()
+
+	if scffs != nil {
+		t.Error("Should not return a scaffold list")
+	}
+
+	if err == nil {
+		t.Error("Should return an error")
+	}
+}
