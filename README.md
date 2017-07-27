@@ -49,6 +49,17 @@ app/cmd/destroy_test.go
 - `dasherize`
 
 
+## Installation
+### macOS
+Homebrew formula is available at [izumin5210/homebrew-tools](https://github.com/izumin5210/homebrew-tools)
+
+```
+$ brew install izumin5210/tools/scaffold
+```
+
+### Other platforms
+Prebuilt binary is available at [Releases](https://github.com/izumin5210/scaffold/releases)
+
 ## Development
 
 ```
