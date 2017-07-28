@@ -1,15 +1,11 @@
 package main
 
 import (
-	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 
 	"github.com/izumin5210/scaffold/app"
-	"github.com/izumin5210/scaffold/app/cmd"
 	"github.com/izumin5210/scaffold/infra/fs"
-	"github.com/mitchellh/cli"
 )
 
 var (
@@ -23,17 +19,8 @@ var (
 
 func main() {
 	ctx := getContext()
-
-	c := cli.NewCLI(Name, fmt.Sprintf("%s (%s)", Version, Revision))
-	c.Args = os.Args[1:]
-	c.Commands = getCommands(ctx)
-
-	exitStatus, err := c.Run()
-	if err != nil {
-		log.Println(err)
-	}
-
-	os.Exit(exitStatus)
+	cli := NewCLI(ctx, Name, Version, Revision)
+	os.Exit(cli.Run(os.Args[1:]))
 }
 
 func getContext() app.Context {
@@ -47,15 +34,4 @@ func getContext() app.Context {
 		filepath.Join(cw, ".scaffold"),
 		fs.New(),
 	)
-}
-
-func getCommands(ctx app.Context) cmd.CommandFactories {
-	factories := cmd.CommandFactories{}
-	factories["generate"] = cmd.NewGenerateCommandFactory(
-		ctx.GetScaffoldsUseCase(),
-		ctx.CreateScaffoldUseCase(),
-		ctx.UI(),
-	)
-	factories["g"] = factories["generate"]
-	return factories
 }
