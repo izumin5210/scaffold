@@ -34,7 +34,7 @@ func (c *cli) Run(args []string) int {
 	c.cli.Args = args
 	cmds, err := c.getCommands()
 	c.cli.Commands = cmds
-	if !c.cli.IsVersion() && err != nil {
+	if !c.cli.IsVersion() && !c.cli.IsHelp() && len(args) != 0 && err != nil {
 		c.ctx.UI().Error(err.Error())
 		return ui.ExitCodeFailedToGetScaffoldsError
 	}

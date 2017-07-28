@@ -28,7 +28,6 @@ type cliTestContext struct {
 	name           string
 	version        string
 	revision       string
-	cli            CLI
 }
 
 func getCLITestContext(t *testing.T) *cliTestContext {
@@ -61,47 +60,35 @@ func getCLITestContext(t *testing.T) *cliTestContext {
 		name:           name,
 		version:        version,
 		revision:       revision,
-		cli:            NewCLI(ctx, name, version, revision),
 	}
+}
+
+func getTestCLI(ctx *cliTestContext) CLI {
+	return NewCLI(ctx.ctx, ctx.name, ctx.version, ctx.revision)
 }
 
 func Test_CLI_Run_WithVersion(t *testing.T) {
 	ctx := getCLITestContext(t)
 	defer ctx.ctrl.Finish()
 
-	tests := []struct {
-		scffs []scaffold.Scaffold
-		err   error
-	}{
-		{
-			scffs: []scaffold.Scaffold{},
-			err:   nil,
-		},
-		{
-			scffs: nil,
-			err:   errors.New("error"),
-		},
-	}
+	for _, args := range [][]string{{"-v"}, {"--version"}} {
+		cli := getTestCLI(ctx)
+		ctx.getScaffolds.EXPECT().Perform().Return([]scaffold.Scaffold{}, nil).Times(1)
 
-	for _, ts := range tests {
-		for _, args := range [][]string{{"-v"}, {"--version"}} {
-			ctx.getScaffolds.EXPECT().Perform().Return(ts.scffs, ts.err).AnyTimes()
+		if actual, expected := cli.Run(args), ui.ExitCodeOK; actual != expected {
+			t.Errorf("Run(%v) returns %d, want %d", args, actual, expected)
+		}
 
-			if actual, expected := ctx.cli.Run(args), 0; actual != expected {
-				t.Errorf("Run() returns %d, want %d", actual, expected)
-			}
+		if actual, expected := ctx.err.String(), ctx.version; !strings.Contains(actual, expected) {
+			t.Errorf("Run(%v) outputs %q to error stream, want to contain %q", args, actual, expected)
+		}
 
-			if actual, expected := ctx.err.String(), ctx.version; !strings.Contains(actual, expected) {
-				t.Errorf("Run() outputs %q to error stream, want to contain %q", actual, expected)
-			}
+		if actual, expected := ctx.err.String(), ctx.revision; !strings.Contains(actual, expected) {
+			t.Errorf("Run(%v) outputs %q to error stream, want to contain %q", args, actual, expected)
+		}
 
-			if actual, expected := ctx.err.String(), ctx.revision; !strings.Contains(actual, expected) {
-				t.Errorf("Run() outputs %q to error stream, want to contain %q", actual, expected)
-			}
-
-			if actual := ctx.out.String(); len(actual) != 0 {
-				t.Errorf("Unexpected outputs to stdout %q", actual)
-			}
+		if actual := ctx.out.String(); len(actual) != 0 {
+			t.Errorf("Unexpected outputs to stdout %q", actual)
 		}
 	}
 }
@@ -109,15 +96,39 @@ func Test_CLI_Run_WithVersion(t *testing.T) {
 func Test_CLI_Run_WhenGetScaffoldsFailed(t *testing.T) {
 	ctx := getCLITestContext(t)
 	defer ctx.ctrl.Finish()
+	cli := getTestCLI(ctx)
 
 	ctx.getScaffolds.EXPECT().Perform().Return(nil, errors.New("error"))
 	ctx.ui.EXPECT().Error(gomock.Any())
 
-	if actual, expected := ctx.cli.Run([]string{"g"}), ui.ExitCodeFailedToGetScaffoldsError; actual != expected {
+	if actual, expected := cli.Run([]string{"g"}), ui.ExitCodeFailedToGetScaffoldsError; actual != expected {
 		t.Errorf("Run() returns %d, want %d", actual, expected)
 	}
 
 	if actual := ctx.out.String(); len(actual) != 0 {
 		t.Errorf("Unexpected outputs to stdout %q", actual)
 	}
+}
+
+func Test_CLI_Run_WhenGetScaffoldsFailed_WithVersionOrHelp(t *testing.T) {
+	ctx := getCLITestContext(t)
+	defer ctx.ctrl.Finish()
+
+	for _, args := range [][]string{{"-v"}, {"--version"}, {"-h"}, {"--help"}} {
+		ctx.getScaffolds.EXPECT().Perform().Return(nil, errors.New("error"))
+		cli := getTestCLI(ctx)
+
+		if actual, expected := cli.Run(args), ui.ExitCodeOK; actual != expected {
+			t.Errorf("Run(%v) returns %d, want %d", args, actual, expected)
+		}
+	}
+}
+
+func Test_CLI_Run_WhenGetScaffoldsFailed_WithNoArgs(t *testing.T) {
+	ctx := getCLITestContext(t)
+	defer ctx.ctrl.Finish()
+
+	ctx.getScaffolds.EXPECT().Perform().Return(nil, errors.New("error"))
+	cli := getTestCLI(ctx)
+	cli.Run([]string{})
 }
