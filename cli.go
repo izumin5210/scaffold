@@ -50,11 +50,7 @@ func (c *cli) getCommands() cmd.CommandFactories {
 		factories[fmt.Sprintf("g %s", n)] = f
 		factories[fmt.Sprintf("generate %s", n)] = f
 	}
-	factories["generate"] = cmd.NewGenerateCommandFactory(
-		c.ctx.GetScaffoldsUseCase(),
-		c.ctx.CreateScaffoldUseCase(),
-		c.ctx.UI(),
-	)
+	factories["generate"] = cmd.NewGenerateCommandFactory(c.ctx.UI())
 	factories["g"] = factories["generate"]
 	return factories
 }
