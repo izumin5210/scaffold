@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/pkg/errors"
@@ -47,11 +48,15 @@ func Test_NewGenerateScaffoldCommandFactories(t *testing.T) {
 	ctx := getGenerateScaffoldTestContext(t)
 	defer ctx.ctrl.Finish()
 
-	scff0 := scaffold.NewMockScaffold(ctx.ctrl)
-	scff1 := scaffold.NewMockScaffold(ctx.ctrl)
-	scff0.EXPECT().Name().Return("model").AnyTimes()
-	scff1.EXPECT().Name().Return("controller").AnyTimes()
-	scffs := []scaffold.Scaffold{scff0, scff1}
+	scffs := []scaffold.Scaffold{}
+	for _, n := range []string{"model", "controller", "view"} {
+		s := scaffold.NewMockScaffold(ctx.ctrl)
+		s.EXPECT().Name().Return(n).MinTimes(1)
+		s.EXPECT().Synopsis().Return(fmt.Sprintf("%s synopsis", n)).Times(2)
+		s.EXPECT().Help().Return(fmt.Sprintf("%s help", n)).Times(2)
+		scffs = append(scffs, s)
+	}
+
 	ctx.getScaffolds.EXPECT().Perform().Return(scffs, nil)
 
 	factories, err := NewGenerateScaffoldCommandFactories(
@@ -69,8 +74,17 @@ func Test_NewGenerateScaffoldCommandFactories(t *testing.T) {
 	}
 
 	for _, s := range scffs {
-		if _, ok := factories[s.Name()]; !ok {
+		if f, ok := factories[s.Name()]; !ok {
 			t.Errorf("factories[%s] should present", s.Name())
+		} else if cmd, err := f(); err != nil {
+			t.Errorf("Unexpected error %v", err)
+		} else {
+			if actual, expected := cmd.Synopsis(), s.Synopsis(); actual != expected {
+				t.Errorf("Synopsis() returns %q, want %q", actual, expected)
+			}
+			if actual, expected := cmd.Help(), s.Help(); actual != expected {
+				t.Errorf("Help() returns %q, want %q", actual, expected)
+			}
 		}
 	}
 }

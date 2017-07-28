@@ -28,15 +28,23 @@ func NewGenerateScaffoldCommandFactories(
 		return nil, errors.Cause(err)
 	}
 	for _, s := range scffs {
-		factories[s.Name()] = func() (cli.Command, error) {
-			return &generateScaffoldCommand{
-				scaffold:       s,
-				createScaffold: createScaffold,
-				ui:             ui,
-			}, nil
-		}
+		factories[s.Name()] = newGenerateScaffoldCommandFactory(s, createScaffold, ui)
 	}
 	return factories, nil
+}
+
+func newGenerateScaffoldCommandFactory(
+	s scaffold.Scaffold,
+	createScaffold usecase.CreateScaffoldUseCase,
+	ui ui.UI,
+) cli.CommandFactory {
+	return func() (cli.Command, error) {
+		return &generateScaffoldCommand{
+			scaffold:       s,
+			createScaffold: createScaffold,
+			ui:             ui,
+		}, nil
+	}
 }
 
 // Synopsis returns a short synopsis of the command.
