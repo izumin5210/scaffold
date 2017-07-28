@@ -40,6 +40,16 @@ func (c *cli) Run(args []string) int {
 
 func (c *cli) getCommands() cmd.CommandFactories {
 	factories := cmd.CommandFactories{}
+	// TODO: should handle an error
+	genScffFactories, _ := cmd.NewGenerateScaffoldCommandFactories(
+		c.ctx.GetScaffoldsUseCase(),
+		c.ctx.CreateScaffoldUseCase(),
+		c.ctx.UI(),
+	)
+	for n, f := range genScffFactories {
+		factories[fmt.Sprintf("g %s", n)] = f
+		factories[fmt.Sprintf("generate %s", n)] = f
+	}
 	factories["generate"] = cmd.NewGenerateCommandFactory(
 		c.ctx.GetScaffoldsUseCase(),
 		c.ctx.CreateScaffoldUseCase(),
