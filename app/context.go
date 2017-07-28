@@ -6,8 +6,8 @@ import (
 	"github.com/izumin5210/scaffold/app/ui"
 	"github.com/izumin5210/scaffold/app/usecase"
 	"github.com/izumin5210/scaffold/domain/scaffold"
-	scaffoldrepo "github.com/izumin5210/scaffold/domain/scaffold/repo"
 	"github.com/izumin5210/scaffold/infra/fs"
+	scaffoldrepo "github.com/izumin5210/scaffold/infra/scaffold/repo"
 )
 
 // Context is container storing configurations
