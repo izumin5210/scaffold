@@ -25,8 +25,7 @@ func NewGenerateScaffoldCommandFactories(
 	factories := map[string]cli.CommandFactory{}
 	scffs, err := getScaffolds.Perform()
 	if err != nil {
-		ui.Error("Cloud not load scaffolds")
-		return nil, errors.Wrap(err, "")
+		return nil, errors.Cause(err)
 	}
 	for _, s := range scffs {
 		factories[s.Name()] = func() (cli.Command, error) {
