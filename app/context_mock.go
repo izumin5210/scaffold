@@ -8,6 +8,7 @@ import (
 	ui "github.com/izumin5210/scaffold/app/ui"
 	usecase "github.com/izumin5210/scaffold/app/usecase"
 	scaffold "github.com/izumin5210/scaffold/domain/scaffold"
+	io "io"
 	reflect "reflect"
 )
 
@@ -56,6 +57,42 @@ func (_m *MockContext) TemplatesPath() string {
 // TemplatesPath indicates an expected call of TemplatesPath
 func (_mr *MockContextMockRecorder) TemplatesPath() *gomock.Call {
 	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "TemplatesPath", reflect.TypeOf((*MockContext)(nil).TemplatesPath))
+}
+
+// InReader mocks base method
+func (_m *MockContext) InReader() io.Reader {
+	ret := _m.ctrl.Call(_m, "InReader")
+	ret0, _ := ret[0].(io.Reader)
+	return ret0
+}
+
+// InReader indicates an expected call of InReader
+func (_mr *MockContextMockRecorder) InReader() *gomock.Call {
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "InReader", reflect.TypeOf((*MockContext)(nil).InReader))
+}
+
+// OutWriter mocks base method
+func (_m *MockContext) OutWriter() io.Writer {
+	ret := _m.ctrl.Call(_m, "OutWriter")
+	ret0, _ := ret[0].(io.Writer)
+	return ret0
+}
+
+// OutWriter indicates an expected call of OutWriter
+func (_mr *MockContextMockRecorder) OutWriter() *gomock.Call {
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "OutWriter", reflect.TypeOf((*MockContext)(nil).OutWriter))
+}
+
+// ErrWriter mocks base method
+func (_m *MockContext) ErrWriter() io.Writer {
+	ret := _m.ctrl.Call(_m, "ErrWriter")
+	ret0, _ := ret[0].(io.Writer)
+	return ret0
+}
+
+// ErrWriter indicates an expected call of ErrWriter
+func (_mr *MockContextMockRecorder) ErrWriter() *gomock.Call {
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "ErrWriter", reflect.TypeOf((*MockContext)(nil).ErrWriter))
 }
 
 // Repository mocks base method

@@ -15,6 +15,9 @@ import (
 type Context interface {
 	RootPath() string
 	TemplatesPath() string
+	InReader() io.Reader
+	OutWriter() io.Writer
+	ErrWriter() io.Writer
 	Repository() scaffold.Repository
 	UI() ui.UI
 	GetScaffoldsUseCase() usecase.GetScaffoldsUseCase
@@ -24,6 +27,9 @@ type Context interface {
 type context struct {
 	rootPath  string
 	tmplsPath string
+	inReader  io.Reader
+	outWriter io.Writer
+	errWriter io.Writer
 	fs        fs.FS
 	repo      scaffold.Repository
 	ui        ui.UI
@@ -31,16 +37,19 @@ type context struct {
 
 // NewContext creates a new context object
 func NewContext(
-	inStream io.Reader,
-	outStream, errStream io.Writer,
+	inReader io.Reader,
+	outWriter, errWriter io.Writer,
 	rootPath, tmplsPath string,
 	fs fs.FS,
 ) Context {
 	return &context{
 		rootPath:  rootPath,
 		tmplsPath: tmplsPath,
+		inReader:  inReader,
+		outWriter: outWriter,
+		errWriter: errWriter,
 		fs:        fs,
-		ui:        ui.NewUI(inStream, outStream, errStream),
+		ui:        ui.NewUI(inReader, outWriter, errWriter),
 	}
 }
 
@@ -50,6 +59,18 @@ func (c *context) RootPath() string {
 
 func (c *context) TemplatesPath() string {
 	return c.tmplsPath
+}
+
+func (c *context) InReader() io.Reader {
+	return c.inReader
+}
+
+func (c *context) OutWriter() io.Writer {
+	return c.outWriter
+}
+
+func (c *context) ErrWriter() io.Writer {
+	return c.errWriter
 }
 
 func (c *context) Repository() scaffold.Repository {
