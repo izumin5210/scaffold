@@ -10,9 +10,9 @@ const (
 
 	ExitCodeUnknownError = 10 + iota
 	ExitCodeScaffoldNameMissingError
-	ExitCodeScffoldNotFoundError
 	ExitCodeFailedToGetScaffoldsError
 	ExitCodeFailedToCreatetScaffoldsError
 
 	ExitCodeInvalidArgumentListLengthError = cli.RunResultHelp
+	ExitCodeScffoldNotFoundError           = cli.RunResultHelp
 )

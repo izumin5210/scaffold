@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 
+	"github.com/izumin5210/scaffold/app/ui"
+
 	"github.com/izumin5210/scaffold/app"
 	"github.com/izumin5210/scaffold/app/cmd"
 	mcli "github.com/mitchellh/cli"
@@ -30,7 +32,12 @@ func NewCLI(ctx app.Context, name, version, revision string) CLI {
 
 func (c *cli) Run(args []string) int {
 	c.cli.Args = args
-	c.cli.Commands = c.getCommands()
+	cmds, err := c.getCommands()
+	c.cli.Commands = cmds
+	if !c.cli.IsVersion() && err != nil {
+		c.ctx.UI().Error(err.Error())
+		return ui.ExitCodeFailedToGetScaffoldsError
+	}
 	exitStatus, err := c.cli.Run()
 	if err != nil {
 		c.ctx.UI().Error(err.Error())
@@ -38,13 +45,18 @@ func (c *cli) Run(args []string) int {
 	return exitStatus
 }
 
-func (c *cli) getCommands() cmd.CommandFactories {
+func (c *cli) getCommands() (cmd.CommandFactories, error) {
 	factories := cmd.CommandFactories{}
-	factories["generate"] = cmd.NewGenerateCommandFactory(
+	genScffFactories, err := cmd.NewGenerateScaffoldCommandFactories(
 		c.ctx.GetScaffoldsUseCase(),
 		c.ctx.CreateScaffoldUseCase(),
 		c.ctx.UI(),
 	)
+	for n, f := range genScffFactories {
+		factories[fmt.Sprintf("g %s", n)] = f
+		factories[fmt.Sprintf("generate %s", n)] = f
+	}
+	factories["generate"] = cmd.NewGenerateCommandFactory(c.ctx.UI())
 	factories["g"] = factories["generate"]
-	return factories
+	return factories, err
 }
