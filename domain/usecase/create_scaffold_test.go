@@ -3,6 +3,8 @@ package usecase
 import (
 	"testing"
 
+	"github.com/izumin5210/scaffold/app/usecase"
+
 	"path/filepath"
 
 	"github.com/golang/mock/gomock"
@@ -27,7 +29,7 @@ func getCreateScaffoldTestContext(t *testing.T) *createScaffoldTestContext {
 	}
 }
 
-func getCreateScaffoldTestUseCase(ctx *createScaffoldTestContext) CreateScaffoldUseCase {
+func getCreateScaffoldTestUseCase(ctx *createScaffoldTestContext) usecase.CreateScaffoldUseCase {
 	return &createScaffoldUseCase{
 		rootPath: ctx.rootPath,
 		repo:     ctx.repo,

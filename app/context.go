@@ -6,8 +6,9 @@ import (
 	"github.com/izumin5210/scaffold/app/ui"
 	"github.com/izumin5210/scaffold/app/usecase"
 	"github.com/izumin5210/scaffold/domain/scaffold"
-	scaffoldrepo "github.com/izumin5210/scaffold/domain/scaffold/repo"
+	usecaseImpl "github.com/izumin5210/scaffold/domain/usecase"
 	"github.com/izumin5210/scaffold/infra/fs"
+	scaffoldrepo "github.com/izumin5210/scaffold/infra/scaffold/repo"
 )
 
 // Context is container storing configurations
@@ -63,9 +64,9 @@ func (c *context) UI() ui.UI {
 }
 
 func (c *context) GetScaffoldsUseCase() usecase.GetScaffoldsUseCase {
-	return usecase.NewGetScaffoldsUseCase(c.Repository())
+	return usecaseImpl.NewGetScaffoldsUseCase(c.Repository())
 }
 
 func (c *context) CreateScaffoldUseCase() usecase.CreateScaffoldUseCase {
-	return usecase.NewCreateScaffoldUseCase(c.RootPath(), c.Repository(), c.UI())
+	return usecaseImpl.NewCreateScaffoldUseCase(c.RootPath(), c.Repository(), c.UI())
 }
