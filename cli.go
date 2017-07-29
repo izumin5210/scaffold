@@ -47,7 +47,7 @@ func (c *cli) Run(args []string) int {
 
 func (c *cli) getCommands() (cmd.CommandFactories, error) {
 	factories := cmd.CommandFactories{}
-	genScffFactories, err := cmd.NewGenerateScaffoldCommandFactories(
+	genScffFactories, err := cmd.NewGenerateCommandFactories(
 		c.ctx.GetScaffoldsUseCase(),
 		c.ctx.CreateScaffoldUseCase(),
 		c.ctx.UI(),

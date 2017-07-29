@@ -10,14 +10,14 @@ import (
 	"github.com/pkg/errors"
 )
 
-type generateScaffoldCommand struct {
+type generateCommand struct {
 	scaffold       scaffold.Scaffold
 	createScaffold usecase.CreateScaffoldUseCase
 	ui             ui.UI
 }
 
-// NewGenerateScaffoldCommandFactories creates a command factory for ...
-func NewGenerateScaffoldCommandFactories(
+// NewGenerateCommandFactories creates a command factory for ...
+func NewGenerateCommandFactories(
 	getScaffolds usecase.GetScaffoldsUseCase,
 	createScaffold usecase.CreateScaffoldUseCase,
 	ui ui.UI,
@@ -28,18 +28,18 @@ func NewGenerateScaffoldCommandFactories(
 		return nil, errors.Cause(err)
 	}
 	for _, s := range scffs {
-		factories[s.Name()] = newGenerateScaffoldCommandFactory(s, createScaffold, ui)
+		factories[s.Name()] = newGenerateCommandFactory(s, createScaffold, ui)
 	}
 	return factories, nil
 }
 
-func newGenerateScaffoldCommandFactory(
+func newGenerateCommandFactory(
 	s scaffold.Scaffold,
 	createScaffold usecase.CreateScaffoldUseCase,
 	ui ui.UI,
 ) cli.CommandFactory {
 	return func() (cli.Command, error) {
-		return &generateScaffoldCommand{
+		return &generateCommand{
 			scaffold:       s,
 			createScaffold: createScaffold,
 			ui:             ui,
@@ -49,19 +49,19 @@ func newGenerateScaffoldCommandFactory(
 
 // Synopsis returns a short synopsis of the command.
 // It is an implementation of mitchellh/cli.Command#Synopsis()
-func (c *generateScaffoldCommand) Synopsis() string {
+func (c *generateCommand) Synopsis() string {
 	return c.scaffold.Synopsis()
 }
 
 // Help returns a long-term help text of the command.
 // It is an implementation of mitchellh/cli.Command#Help()
-func (c *generateScaffoldCommand) Help() string {
+func (c *generateCommand) Help() string {
 	return c.scaffold.Help()
 }
 
 // Run runs the actual command behavior
 // It is an implementation of mitchellh/cli.Command#Run()
-func (c *generateScaffoldCommand) Run(args []string) int {
+func (c *generateCommand) Run(args []string) int {
 	if len(args) != 1 {
 		c.ui.Error(fmt.Sprintf("Invalid arguments: %v", args))
 		return ui.ExitCodeInvalidArgumentListLengthError

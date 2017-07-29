@@ -13,19 +13,19 @@ import (
 	"github.com/golang/mock/gomock"
 )
 
-type generateScaffoldTestContext struct {
+type generateTestContext struct {
 	ctrl           *gomock.Controller
 	createScaffold *usecase.MockCreateScaffoldUseCase
 	getScaffolds   *usecase.MockGetScaffoldsUseCase
 	ui             *ui.MockUI
 }
 
-func getGenerateScaffoldTestContext(t *testing.T) *generateScaffoldTestContext {
+func getGenerateTestContext(t *testing.T) *generateTestContext {
 	ctrl := gomock.NewController(t)
 	createScaffold := usecase.NewMockCreateScaffoldUseCase(ctrl)
 	getScaffolds := usecase.NewMockGetScaffoldsUseCase(ctrl)
 	ui := ui.NewMockUI(ctrl)
-	return &generateScaffoldTestContext{
+	return &generateTestContext{
 		ctrl:           ctrl,
 		createScaffold: createScaffold,
 		getScaffolds:   getScaffolds,
@@ -33,19 +33,19 @@ func getGenerateScaffoldTestContext(t *testing.T) *generateScaffoldTestContext {
 	}
 }
 
-func getGenerateScaffoldTestCommand(
-	ctx *generateScaffoldTestContext,
+func getGenerateTestCommand(
+	ctx *generateTestContext,
 	scff scaffold.Scaffold,
-) *generateScaffoldCommand {
-	return &generateScaffoldCommand{
+) *generateCommand {
+	return &generateCommand{
 		scaffold:       scff,
 		createScaffold: ctx.createScaffold,
 		ui:             ctx.ui,
 	}
 }
 
-func Test_NewGenerateScaffoldCommandFactories(t *testing.T) {
-	ctx := getGenerateScaffoldTestContext(t)
+func Test_NewGenerateCommandFactories(t *testing.T) {
+	ctx := getGenerateTestContext(t)
 	defer ctx.ctrl.Finish()
 
 	scffs := []scaffold.Scaffold{}
@@ -59,7 +59,7 @@ func Test_NewGenerateScaffoldCommandFactories(t *testing.T) {
 
 	ctx.getScaffolds.EXPECT().Perform().Return(scffs, nil)
 
-	factories, err := NewGenerateScaffoldCommandFactories(
+	factories, err := NewGenerateCommandFactories(
 		ctx.getScaffolds,
 		ctx.createScaffold,
 		ctx.ui,
@@ -89,12 +89,12 @@ func Test_NewGenerateScaffoldCommandFactories(t *testing.T) {
 	}
 }
 
-func Test_GenerateScaffold_Run(t *testing.T) {
-	ctx := getGenerateScaffoldTestContext(t)
+func Test_Generate_Run(t *testing.T) {
+	ctx := getGenerateTestContext(t)
 	defer ctx.ctrl.Finish()
 
 	scff := scaffold.NewMockScaffold(ctx.ctrl)
-	cmd := getGenerateScaffoldTestCommand(ctx, scff)
+	cmd := getGenerateTestCommand(ctx, scff)
 	name := "foo"
 
 	ctx.createScaffold.EXPECT().Perform(scff, name).Return(nil)
@@ -106,12 +106,12 @@ func Test_GenerateScaffold_Run(t *testing.T) {
 	}
 }
 
-func Test_GenerateScaffold_Run_WithoutName(t *testing.T) {
-	ctx := getGenerateScaffoldTestContext(t)
+func Test_Generate_Run_WithoutName(t *testing.T) {
+	ctx := getGenerateTestContext(t)
 	defer ctx.ctrl.Finish()
 
 	scff := scaffold.NewMockScaffold(ctx.ctrl)
-	cmd := getGenerateScaffoldTestCommand(ctx, scff)
+	cmd := getGenerateTestCommand(ctx, scff)
 	ctx.ui.EXPECT().Error(gomock.Any())
 
 	code := cmd.Run([]string{})
@@ -121,12 +121,12 @@ func Test_GenerateScaffold_Run_WithoutName(t *testing.T) {
 	}
 }
 
-func Test_GenerateScaffold_Run_WhenCreateScffoldFaild(t *testing.T) {
-	ctx := getGenerateScaffoldTestContext(t)
+func Test_Generate_Run_WhenCreateScffoldFaild(t *testing.T) {
+	ctx := getGenerateTestContext(t)
 	defer ctx.ctrl.Finish()
 
 	scff := scaffold.NewMockScaffold(ctx.ctrl)
-	cmd := getGenerateScaffoldTestCommand(ctx, scff)
+	cmd := getGenerateTestCommand(ctx, scff)
 	name := "foo"
 
 	ctx.createScaffold.EXPECT().Perform(scff, name).Return(errors.New("error"))
