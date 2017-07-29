@@ -1,16 +1,24 @@
 package cmd
 
 import (
+	"github.com/izumin5210/scaffold/app/ui"
 	"github.com/mitchellh/cli"
+	"github.com/pkg/errors"
 )
 
 type {{name | camelize}}Command struct {
+	ui ui.UI
 }
 
 // New{{name | pascalize}}CommandFactory creates a command factory for ...
-func New{{name | pascalize}}CommandFactory() cli.CommandFactory {
+func New{{name | pascalize}}CommandFactory(
+	ui ui.UI,
+) cli.CommandFactory {
 	return func() (cli.Command, error) {
-		return &{{name | camelize}}Command{}, nil
+		// TODO: Not yet implemented.
+		return &{{name | camelize}}Command{
+			ui: ui,
+		}, errors.New("Not yet implemented")
 	}
 }
 
@@ -32,5 +40,5 @@ func (c *{{name | camelize}}Command) Help() string {
 // It is an implementation of mitchellh/cli.Command#Run()
 func (c *{{name | camelize}}Command) Run(args []string) int {
 	// TODO: Not yet implemented.
-	return 0
+	return ui.ExitCodeUnknownError
 }
