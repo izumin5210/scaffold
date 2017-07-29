@@ -53,10 +53,14 @@ func (c *cli) getCommands() (cmd.CommandFactories, error) {
 		c.ctx.UI(),
 	)
 	for n, f := range genScffFactories {
-		factories[fmt.Sprintf("g %s", n)] = f
-		factories[fmt.Sprintf("generate %s", n)] = f
+		factories[fmt.Sprintf("%s %s", ui.CommandGenerate, n)] = f
+		factories[fmt.Sprintf("%s %s", ui.CommandGenerateShort, n)] = f
 	}
-	factories["generate"] = cmd.NewEmptyCommandFactory("generate", "Generate new files from a specified template", c.ctx.UI())
-	factories["g"] = factories["generate"]
+	factories[ui.CommandGenerate] = cmd.NewEmptyCommandFactory(
+		ui.CommandGenerate,
+		ui.CommandGenerateSynopsis,
+		c.ctx.UI(),
+	)
+	factories[ui.CommandGenerateShort] = factories[ui.CommandGenerate]
 	return factories, err
 }
