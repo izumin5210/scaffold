@@ -3,30 +3,14 @@ package cmd
 import (
 	"testing"
 
-	"github.com/golang/mock/gomock"
 	"github.com/izumin5210/scaffold/app/ui"
 )
-
-type {{name | camelize}}TestContext struct {
-	ctrl *gomock.Controller
-}
-
-func get{{name | pascalize}}TestContext(t *testing.T) *{{name | camelize}}TestContext {
-	ctrl := gomock.NewController(t)
-	return &{{name | camelize}}TestContext{
-		ctrl: ctrl,
-	}
-}
-
-func get{{name | pascalize}}TestCommand(ctx *{{name | camelize}}TestContext) *{{name | camelize}}Command {
-	return &{{name | camelize}}Command{}
-}
 
 func Test_New{{name | pascalize}}CommandFactory(t *testing.T) {
 	ctx := get{{name | pascalize}}TestContext(t)
 	defer ctx.ctrl.Finish()
 
-	f := New{{name | pascalize}}CommandFactory()
+	f := New{{name | pascalize}}CommandFactory(ctx.ui)
 	cmd, err := f()
 
 	if err != nil {
