@@ -9,34 +9,40 @@ import (
 	"github.com/mitchellh/cli"
 )
 
-type generateCommand struct {
-	ui ui.UI
+type emptyCommand struct {
+	name     string
+	synopsis string
+	ui       ui.UI
 }
 
-// NewGenerateCommandFactory creates a command factory for ...
-func NewGenerateCommandFactory(ui ui.UI) cli.CommandFactory {
+// NewEmptyCommandFactory creates a command factory for ...
+func NewEmptyCommandFactory(name, synopsis string, ui ui.UI) cli.CommandFactory {
 	return func() (cli.Command, error) {
-		return &generateCommand{ui: ui}, nil
+		return &emptyCommand{
+			name:     name,
+			synopsis: synopsis,
+			ui:       ui,
+		}, nil
 	}
 }
 
 // Synopsis returns a short synopsis of the command.
 // It is an implementation of mitchellh/cli.Command#Synopsis()
-func (c *generateCommand) Synopsis() string {
-	return "Generate new code"
+func (c *emptyCommand) Synopsis() string {
+	return c.synopsis
 }
 
 // Help returns a long-term help text of the command.
 // It is an implementation of mitchellh/cli.Command#Help()
-func (c *generateCommand) Help() string {
+func (c *emptyCommand) Help() string {
 	var buf bytes.Buffer
-	buf.WriteString("Usage: scaffold generate [--help] <name> [<args>]")
+	buf.WriteString(fmt.Sprintf("Usage: scaffold %s [--help] <name> [<args>]", c.name))
 	return buf.String()
 }
 
 // Run runs the actual command behavior
 // It is an implementation of mitchellh/cli.Command#Run()
-func (c *generateCommand) Run(args []string) int {
+func (c *emptyCommand) Run(args []string) int {
 	if len(args) > 0 {
 		c.ui.Error(fmt.Sprintf("Scaffold %q is not found", args[0]))
 		return ui.ExitCodeScffoldNotFoundError
