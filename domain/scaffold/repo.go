@@ -58,4 +58,9 @@ type Repository interface {
 		cb ConstructCallback,
 		conflictedCb ConstructConflictedCallback,
 	) error
+
+	GetScaffolds(tmplsPath string) ([]Scaffold, error)
+	GetTemplates(s Scaffold) ([]TemplateEntry, error)
+	GetConcreteEntries(s Scaffold, tmpls []TemplateEntry, v interface{}) (map[string]ConcreteEntry, error)
+	// Create(e Entry) (bool, error)
 }

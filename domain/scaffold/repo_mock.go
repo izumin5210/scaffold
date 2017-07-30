@@ -55,3 +55,42 @@ func (_m *MockRepository) Construct(scff Scaffold, name string, cb ConstructCall
 func (_mr *MockRepositoryMockRecorder) Construct(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "Construct", reflect.TypeOf((*MockRepository)(nil).Construct), arg0, arg1, arg2, arg3)
 }
+
+// GetScaffolds mocks base method
+func (_m *MockRepository) GetScaffolds(tmplsPath string) ([]Scaffold, error) {
+	ret := _m.ctrl.Call(_m, "GetScaffolds", tmplsPath)
+	ret0, _ := ret[0].([]Scaffold)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetScaffolds indicates an expected call of GetScaffolds
+func (_mr *MockRepositoryMockRecorder) GetScaffolds(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "GetScaffolds", reflect.TypeOf((*MockRepository)(nil).GetScaffolds), arg0)
+}
+
+// GetTemplates mocks base method
+func (_m *MockRepository) GetTemplates(s Scaffold) ([]TemplateEntry, error) {
+	ret := _m.ctrl.Call(_m, "GetTemplates", s)
+	ret0, _ := ret[0].([]TemplateEntry)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetTemplates indicates an expected call of GetTemplates
+func (_mr *MockRepositoryMockRecorder) GetTemplates(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "GetTemplates", reflect.TypeOf((*MockRepository)(nil).GetTemplates), arg0)
+}
+
+// GetConcreteEntries mocks base method
+func (_m *MockRepository) GetConcreteEntries(s Scaffold, tmpls []TemplateEntry, v interface{}) (map[string]ConcreteEntry, error) {
+	ret := _m.ctrl.Call(_m, "GetConcreteEntries", s, tmpls, v)
+	ret0, _ := ret[0].(map[string]ConcreteEntry)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetConcreteEntries indicates an expected call of GetConcreteEntries
+func (_mr *MockRepositoryMockRecorder) GetConcreteEntries(arg0, arg1, arg2 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "GetConcreteEntries", reflect.TypeOf((*MockRepository)(nil).GetConcreteEntries), arg0, arg1, arg2)
+}
