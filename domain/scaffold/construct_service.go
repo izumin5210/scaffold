@@ -7,6 +7,7 @@ import (
 // ConstructService creates directories and files from scaffold templates
 type ConstructService interface {
 	Perform(
+		rootPath string,
 		sc Scaffold,
 		v interface{},
 		cb ConstructCallback,
@@ -26,6 +27,7 @@ func NewConstructService(repo Repository) ConstructService {
 }
 
 func (s *constructService) Perform(
+	rootPath string,
 	sc Scaffold,
 	v interface{},
 	cb ConstructCallback,
