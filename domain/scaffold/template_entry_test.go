@@ -1,16 +1,18 @@
 package scaffold
 
 import (
+	"path/filepath"
 	"reflect"
 	"testing"
 )
 
 func Test_NewTemplateFile(t *testing.T) {
 	const (
-		path    = "/app/foo.go"
-		content = "package app"
+		path     = "/app/.scaffold/foo.go"
+		content  = "package app"
+		tmplRoot = "/app/.scaffold"
 	)
-	f := NewTemplateFile(path, content)
+	f := NewTemplateFile(path, content, tmplRoot)
 
 	if actual, expected := f.Path(), path; actual != expected {
 		t.Errorf("Path() returns %q, want %q", actual, expected)
@@ -27,9 +29,10 @@ func Test_NewTemplateFile(t *testing.T) {
 
 func Test_NewTemplateDir(t *testing.T) {
 	const (
-		path = "/app/foo.go"
+		path     = "/app/foo.go"
+		tmplRoot = "/app/.scaffold"
 	)
-	d := NewTemplateDir(path)
+	d := NewTemplateDir(path, tmplRoot)
 
 	if actual, expected := d.Path(), path; actual != expected {
 		t.Errorf("Path() returns %q, want %q", actual, expected)
@@ -51,19 +54,21 @@ func Test_NewTemplateEntry(t *testing.T) {
 		dir     bool
 	}{
 		{
-			path:    "/app",
+			path:    "/app/.scaffold/foo",
 			content: "",
 			dir:     true,
 		},
 		{
-			path:    "/app/foo.go",
+			path:    "/app/.scaffold/foo.go",
 			content: "package app",
 			dir:     false,
 		},
 	}
 
+	tmplRoot := "/app/.scaffold"
+
 	for _, c := range cases {
-		e := NewEntry(c.path, c.content, c.dir)
+		e := NewTemplateEntry(TemplateString(c.path), TemplateString(c.content), c.dir, tmplRoot)
 
 		if actual, expected := e.Path(), c.path; actual != expected {
 			t.Errorf("Path() returns %q, want %q", actual, expected)
@@ -80,25 +85,33 @@ func Test_NewTemplateEntry(t *testing.T) {
 }
 
 func Test_TemplateEntry_Compile(t *testing.T) {
+	root := "/app"
+	tmplRoot := filepath.Join(root, ".scaffold")
+	getConcPath := func(path string) string {
+		return filepath.Join(root, path)
+	}
+	getTmplPath := func(path string) TemplateString {
+		return TemplateString(filepath.Join(tmplRoot, path))
+	}
 	cases := []struct {
 		in  TemplateEntry
 		v   interface{}
 		out Entry
 	}{
 		{
-			in:  NewTemplateDir("/app/{{name}}"),
+			in:  NewTemplateDir(getTmplPath("{{name}}"), tmplRoot),
 			v:   struct{ Name string }{Name: "foobar"},
-			out: NewEntry("/app/foobar", "", true),
+			out: NewEntry(getConcPath("foobar"), "", true),
 		},
 		{
-			in:  NewTemplateFile("/app/{{name}}.go", "package {{namespace}}\n\ntype {{name}} struct{}"),
+			in:  NewTemplateFile(getTmplPath("{{name}}.go"), "package {{namespace}}\n\ntype {{name}} struct{}", tmplRoot),
 			v:   struct{ Name, Namespace string }{Name: "foobar", Namespace: "app"},
-			out: NewEntry("/app/foobar.go", "package app\n\ntype foobar struct{}", false),
+			out: NewEntry(getConcPath("foobar.go"), "package app\n\ntype foobar struct{}", false),
 		},
 	}
 
 	for _, c := range cases {
-		e, err := c.in.Compile(c.v)
+		e, err := c.in.Compile(root, c.v)
 
 		if err != nil {
 			t.Errorf("Unexpected error %v", err)
@@ -111,8 +124,8 @@ func Test_TemplateEntry_Compile(t *testing.T) {
 }
 
 func Test_TemplateEntry_Compile_WhenFailedToCompilePath(t *testing.T) {
-	d := NewTemplateDir("/app/{{name}}")
-	e, err := d.Compile(nil)
+	d := NewTemplateDir("/app/.scaffold/{{name}}", "/app/.scaffold")
+	e, err := d.Compile("/app", nil)
 
 	if err == nil {
 		t.Error("Should return an error")
@@ -124,8 +137,8 @@ func Test_TemplateEntry_Compile_WhenFailedToCompilePath(t *testing.T) {
 }
 
 func Test_TemplateEntry_Compile_WhenFailedToCompileContent(t *testing.T) {
-	d := NewTemplateFile("/app/{{name}}.go", "package {{name}")
-	e, err := d.Compile(struct{ Name string }{Name: "foobar"})
+	d := NewTemplateFile("/app/.scaffold/{{name}}.go", "package {{name}", "/app/.scaffold")
+	e, err := d.Compile("/app", struct{ Name string }{Name: "foobar"})
 
 	if err == nil {
 		t.Error("Should return an error")

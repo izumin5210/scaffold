@@ -1,10 +1,13 @@
 package scaffold
 
+import "path/filepath"
+
 // Entry represents a filesystem file or directory
 type Entry interface {
 	Path() string
 	IsDir() bool
 	Content() string
+	Dir() string
 }
 
 type entry struct {
@@ -32,4 +35,8 @@ func (e *entry) Content() string {
 
 func (e *entry) IsDir() bool {
 	return e.dir
+}
+
+func (e *entry) Dir() string {
+	return filepath.Dir(e.Path())
 }
