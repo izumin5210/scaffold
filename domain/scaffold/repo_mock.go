@@ -31,31 +31,6 @@ func (_m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return _m.recorder
 }
 
-// GetAll mocks base method
-func (_m *MockRepository) GetAll() ([]Scaffold, error) {
-	ret := _m.ctrl.Call(_m, "GetAll")
-	ret0, _ := ret[0].([]Scaffold)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetAll indicates an expected call of GetAll
-func (_mr *MockRepositoryMockRecorder) GetAll() *gomock.Call {
-	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "GetAll", reflect.TypeOf((*MockRepository)(nil).GetAll))
-}
-
-// Construct mocks base method
-func (_m *MockRepository) Construct(scff Scaffold, name string, cb ConstructCallback, conflictedCb ConstructConflictedCallback) error {
-	ret := _m.ctrl.Call(_m, "Construct", scff, name, cb, conflictedCb)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// Construct indicates an expected call of Construct
-func (_mr *MockRepositoryMockRecorder) Construct(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "Construct", reflect.TypeOf((*MockRepository)(nil).Construct), arg0, arg1, arg2, arg3)
-}
-
 // GetScaffolds mocks base method
 func (_m *MockRepository) GetScaffolds(tmplsPath string) ([]Scaffold, error) {
 	ret := _m.ctrl.Call(_m, "GetScaffolds", tmplsPath)
