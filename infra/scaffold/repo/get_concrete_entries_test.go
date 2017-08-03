@@ -50,19 +50,19 @@ func Test_GetConcreteEntries(t *testing.T) {
 		{},
 		{
 			in: []scaffold.TemplateEntry{
-				scaffold.NewTemplateFile(getTmplPath("{{name}}.go"), ""),
-				scaffold.NewTemplateFile(getTmplPath("bar.go"), ""),
+				scaffold.NewTemplateFile(getTmplPath("{{name}}.go"), "", scff.Path()),
+				scaffold.NewTemplateFile(getTmplPath("bar.go"), "", scff.Path()),
 			},
 			out: map[string]scaffold.ConcreteEntry{},
 		},
 		{
 			in: []scaffold.TemplateEntry{
-				scaffold.NewTemplateFile(getTmplPath("{{name}}.go"), ""),
-				scaffold.NewTemplateFile(getTmplPath("bar/quux/grault.go"), ""),
-				scaffold.NewTemplateFile(getTmplPath("bar/qux/corge.go"), ""),
-				scaffold.NewTemplateFile(getTmplPath("baz/{{name}}.go"), ""),
-				scaffold.NewTemplateDir(getTmplPath("baz/{{name}}/garply")),
-				scaffold.NewTemplateFile(getTmplPath("baz/{{name}}_test.go"), ""),
+				scaffold.NewTemplateFile(getTmplPath("{{name}}.go"), "", scff.Path()),
+				scaffold.NewTemplateFile(getTmplPath("bar/quux/grault.go"), "", scff.Path()),
+				scaffold.NewTemplateFile(getTmplPath("bar/qux/corge.go"), "", scff.Path()),
+				scaffold.NewTemplateFile(getTmplPath("baz/{{name}}.go"), "", scff.Path()),
+				scaffold.NewTemplateDir(getTmplPath("baz/{{name}}/garply"), scff.Path()),
+				scaffold.NewTemplateFile(getTmplPath("baz/{{name}}_test.go"), "", scff.Path()),
 			},
 			out: map[string]scaffold.ConcreteEntry{
 				fmt.Sprintf("%s.go", name): scaffold.NewConcreteEntry(
@@ -157,7 +157,7 @@ func Test_GetConcreteEntries_WhenFailedToCompilePath(t *testing.T) {
 	scff := scaffold.NewScaffold(filepath.Join(ctx.TmplsPath, "foo"), &scaffold.Meta{})
 
 	tmpls := []scaffold.TemplateEntry{
-		scaffold.NewTemplateDir(scaffold.TemplateString(filepath.Join(scff.Path(), "{{name}_test"))),
+		scaffold.NewTemplateDir(scaffold.TemplateString(filepath.Join(scff.Path(), "{{name}_test")), scff.Path()),
 	}
 	entries, err := repo.GetConcreteEntries(scff, tmpls, v)
 
@@ -181,7 +181,7 @@ func Test_GetConcreteEntries_WhenTemplateOutsideScaffold(t *testing.T) {
 	scff := scaffold.NewScaffold(filepath.Join(ctx.TmplsPath, "foo"), &scaffold.Meta{})
 
 	tmpls := []scaffold.TemplateEntry{
-		scaffold.NewTemplateDir(scaffold.TemplateString("/app/{{name}}_test")),
+		scaffold.NewTemplateDir(scaffold.TemplateString("/app/{{name}}_test"), scff.Path()),
 	}
 	entries, err := repo.GetConcreteEntries(scff, tmpls, v)
 
@@ -205,7 +205,7 @@ func Test_GetConcreteEntries_WhenFailedToCheckDirExistence(t *testing.T) {
 	scff := scaffold.NewScaffold(filepath.Join(ctx.TmplsPath, "foo"), &scaffold.Meta{})
 
 	tmpls := []scaffold.TemplateEntry{
-		scaffold.NewTemplateDir(scaffold.TemplateString(filepath.Join(scff.Path(), "{{name}}_test"))),
+		scaffold.NewTemplateDir(scaffold.TemplateString(filepath.Join(scff.Path(), "{{name}}_test")), scff.Path()),
 	}
 	ctx.FS.EXPECT().DirExists(gomock.Any()).Return(false, errors.New("error"))
 	entries, err := repo.GetConcreteEntries(scff, tmpls, v)
@@ -233,6 +233,7 @@ func Test_GetConcreteEntries_WhenFailedToCheckFileExistence(t *testing.T) {
 		scaffold.NewTemplateFile(
 			scaffold.TemplateString(filepath.Join(scff.Path(), "{{name}}_test")),
 			scaffold.TemplateString("package main"),
+			scff.Path(),
 		),
 	}
 	ctx.FS.EXPECT().Exists(gomock.Any()).Return(false, errors.New("error"))
@@ -261,6 +262,7 @@ func Test_GetConcreteEntries_WhenFailedToCreadFile(t *testing.T) {
 		scaffold.NewTemplateFile(
 			scaffold.TemplateString(filepath.Join(scff.Path(), "{{name}}_test")),
 			scaffold.TemplateString("package main"),
+			scff.Path(),
 		),
 	}
 	ctx.FS.EXPECT().Exists(gomock.Any()).Return(true, nil)

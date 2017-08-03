@@ -14,13 +14,13 @@ func (r *repo) GetTemplates(s scaffold.Scaffold) ([]scaffold.TemplateEntry, erro
 	for _, e := range entries {
 		tmplPath := scaffold.TemplateString(e.Path())
 		if e.IsDir() {
-			tmpls = append(tmpls, scaffold.NewTemplateDir(tmplPath))
+			tmpls = append(tmpls, scaffold.NewTemplateDir(tmplPath, s.Path()))
 		} else {
 			content, err := r.fs.ReadFile(e.Path())
 			if err != nil {
 				return nil, errors.Wrapf(err, "Failed to read template %q", e.Path())
 			}
-			tmpl := scaffold.NewTemplateFile(tmplPath, scaffold.TemplateString(content))
+			tmpl := scaffold.NewTemplateFile(tmplPath, scaffold.TemplateString(content), s.Path())
 			tmpls = append(tmpls, tmpl)
 		}
 	}
