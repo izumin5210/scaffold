@@ -10,10 +10,12 @@ import (
 )
 
 type constructServiceTestContext struct {
-	ctrl    *gomock.Controller
-	repo    *MockRepository
-	root    string
-	service ConstructService
+	ctrl     *gomock.Controller
+	repo     *MockRepository
+	root     string
+	name     string
+	scaffold Scaffold
+	service  ConstructService
 }
 
 type constructCallbackCall struct {
@@ -25,11 +27,16 @@ type constructCallbackCall struct {
 func newConstructServiceTestContext(t *testing.T) *constructServiceTestContext {
 	ctrl := gomock.NewController(t)
 	repo := NewMockRepository(ctrl)
+	root := "/app"
+	sc := NewScaffold(filepath.Join(root, ".scaffold", "golang"), &Meta{})
+	name := "gopher"
 	return &constructServiceTestContext{
-		ctrl:    ctrl,
-		repo:    repo,
-		root:    "/app",
-		service: NewConstructService(repo),
+		ctrl:     ctrl,
+		repo:     repo,
+		root:     root,
+		scaffold: sc,
+		name:     name,
+		service:  NewConstructService(repo),
 	}
 }
 
@@ -37,11 +44,8 @@ func Test_ConstructService(t *testing.T) {
 	ctx := newConstructServiceTestContext(t)
 	defer ctx.ctrl.Finish()
 
-	sc := NewScaffold(filepath.Join(ctx.root, ".scaffold", "golang"), &Meta{})
-	name := "gopher"
-
 	getTmplPath := func(relpath string) TemplateString {
-		return TemplateString(filepath.Join(sc.Path(), relpath))
+		return TemplateString(filepath.Join(ctx.scaffold.Path(), relpath))
 	}
 	getConcPath := func(relpath string) string {
 		return filepath.Join(ctx.root, relpath)
@@ -58,12 +62,12 @@ func Test_ConstructService(t *testing.T) {
 		{},
 		{
 			tmpls: []TemplateEntry{
-				NewTemplateFile(getTmplPath("foo.go"), "package main", sc.Path()),
+				NewTemplateFile(getTmplPath("foo.go"), "package main", ctx.scaffold.Path()),
 			},
 			createdWithParent: map[string]bool{
 				getConcPath("foo.go"): false,
 			},
-			values: struct{ Name string }{Name: name},
+			values: struct{ Name string }{Name: ctx.name},
 			calls: map[string]*constructCallbackCall{
 				getConcPath("foo.go"): &constructCallbackCall{status: ConstructSuccess},
 			},
@@ -84,24 +88,24 @@ func Test_ConstructService(t *testing.T) {
 		// └── waldo.go
 		{
 			tmpls: []TemplateEntry{
-				NewTemplateDir(getTmplPath("bar"), sc.Path()),
-				NewTemplateFile(getTmplPath("baz/{{name}}.go"), "package baz", sc.Path()),
-				NewTemplateFile(getTmplPath("baz/{{name}}_test.go"), "package baz", sc.Path()),
-				NewTemplateFile(getTmplPath("baz/{{name}}/garlpy.go"), "package {{name}}", sc.Path()),
-				NewTemplateFile(getTmplPath("baz/{{name}}/{{name}}.go"), "package {{name}}", sc.Path()),
-				NewTemplateFile(getTmplPath("foo/quux/grault.go"), "package quux", sc.Path()),
-				NewTemplateFile(getTmplPath("foo/qux/corge.go"), "package qux", sc.Path()),
-				NewTemplateFile(getTmplPath("waldo.go"), "package main", sc.Path()),
+				NewTemplateDir(getTmplPath("bar"), ctx.scaffold.Path()),
+				NewTemplateFile(getTmplPath("baz/{{name}}.go"), "package baz", ctx.scaffold.Path()),
+				NewTemplateFile(getTmplPath("baz/{{name}}_test.go"), "package baz", ctx.scaffold.Path()),
+				NewTemplateFile(getTmplPath("baz/{{name}}/garlpy.go"), "package {{name}}", ctx.scaffold.Path()),
+				NewTemplateFile(getTmplPath("baz/{{name}}/{{name}}.go"), "package {{name}}", ctx.scaffold.Path()),
+				NewTemplateFile(getTmplPath("foo/quux/grault.go"), "package quux", ctx.scaffold.Path()),
+				NewTemplateFile(getTmplPath("foo/qux/corge.go"), "package qux", ctx.scaffold.Path()),
+				NewTemplateFile(getTmplPath("waldo.go"), "package main", ctx.scaffold.Path()),
 			},
 			createdWithParent: map[string]bool{
-				getConcPath("bar"):                                   false,
-				getConcPath(fmt.Sprintf("baz/%s_test.go", name)):     false,
-				getConcPath(fmt.Sprintf("baz/%s/garlpy.go", name)):   true,
-				getConcPath(fmt.Sprintf("baz/%s/%s.go", name, name)): false,
-				getConcPath("foo/quux/grault.go"):                    true,
-				getConcPath("waldo.go"):                              false,
+				getConcPath("bar"):                                           false,
+				getConcPath(fmt.Sprintf("baz/%s_test.go", ctx.name)):         false,
+				getConcPath(fmt.Sprintf("baz/%s/garlpy.go", ctx.name)):       true,
+				getConcPath(fmt.Sprintf("baz/%s/%s.go", ctx.name, ctx.name)): false,
+				getConcPath("foo/quux/grault.go"):                            true,
+				getConcPath("waldo.go"):                                      false,
 			},
-			values: struct{ Name string }{Name: name},
+			values: struct{ Name string }{Name: ctx.name},
 			existings: map[string]ConcreteEntry{
 				// existed
 				getConcPath("foo/qux/corge.go"): NewConcreteFile(
@@ -110,42 +114,42 @@ func Test_ConstructService(t *testing.T) {
 					string(getTmplPath("foo/qux/corge.go")),
 				),
 				// conflicted
-				getConcPath(fmt.Sprintf("baz/%s.go", name)): NewConcreteFile(
-					getConcPath(fmt.Sprintf("baz/%s.go", name)),
+				getConcPath(fmt.Sprintf("baz/%s.go", ctx.name)): NewConcreteFile(
+					getConcPath(fmt.Sprintf("baz/%s.go", ctx.name)),
 					"",
 					string(getTmplPath("baz/{{name}}.go")),
 				),
 				// conflicted and will overwrite
-				getConcPath(fmt.Sprintf("baz/%s_test.go", name)): NewConcreteFile(
-					getConcPath(fmt.Sprintf("baz/%s_test.go", name)),
+				getConcPath(fmt.Sprintf("baz/%s_test.go", ctx.name)): NewConcreteFile(
+					getConcPath(fmt.Sprintf("baz/%s_test.go", ctx.name)),
 					"",
 					string(getTmplPath("baz/{{name}}_test.go")),
 				),
 			},
 			calls: map[string]*constructCallbackCall{
-				getConcPath("bar"):                                   &constructCallbackCall{dir: true, status: ConstructSuccess},
-				getConcPath("baz"):                                   &constructCallbackCall{dir: true, status: ConstructSkipped},
-				getConcPath(fmt.Sprintf("baz/%s.go", name)):          &constructCallbackCall{conflicted: true, status: ConstructSkipped},
-				getConcPath(fmt.Sprintf("baz/%s_test.go", name)):     &constructCallbackCall{conflicted: true, status: ConstructSuccess},
-				getConcPath(fmt.Sprintf("baz/%s", name)):             &constructCallbackCall{dir: true, status: ConstructSuccess},
-				getConcPath(fmt.Sprintf("baz/%s/garlpy.go", name)):   &constructCallbackCall{status: ConstructSuccess},
-				getConcPath(fmt.Sprintf("baz/%s/%s.go", name, name)): &constructCallbackCall{status: ConstructSuccess},
-				getConcPath("foo/quux"):                              &constructCallbackCall{dir: true, status: ConstructSuccess},
-				getConcPath("foo/quux/grault.go"):                    &constructCallbackCall{status: ConstructSuccess},
-				getConcPath("foo/qux/corge.go"):                      &constructCallbackCall{status: ConstructSkipped},
-				getConcPath("waldo.go"):                              &constructCallbackCall{status: ConstructSuccess},
+				getConcPath("bar"):                                           &constructCallbackCall{dir: true, status: ConstructSuccess},
+				getConcPath("baz"):                                           &constructCallbackCall{dir: true, status: ConstructSkipped},
+				getConcPath(fmt.Sprintf("baz/%s.go", ctx.name)):              &constructCallbackCall{conflicted: true, status: ConstructSkipped},
+				getConcPath(fmt.Sprintf("baz/%s_test.go", ctx.name)):         &constructCallbackCall{conflicted: true, status: ConstructSuccess},
+				getConcPath(fmt.Sprintf("baz/%s", ctx.name)):                 &constructCallbackCall{dir: true, status: ConstructSuccess},
+				getConcPath(fmt.Sprintf("baz/%s/garlpy.go", ctx.name)):       &constructCallbackCall{status: ConstructSuccess},
+				getConcPath(fmt.Sprintf("baz/%s/%s.go", ctx.name, ctx.name)): &constructCallbackCall{status: ConstructSuccess},
+				getConcPath("foo/quux"):                                      &constructCallbackCall{dir: true, status: ConstructSuccess},
+				getConcPath("foo/quux/grault.go"):                            &constructCallbackCall{status: ConstructSuccess},
+				getConcPath("foo/qux/corge.go"):                              &constructCallbackCall{status: ConstructSkipped},
+				getConcPath("waldo.go"):                                      &constructCallbackCall{status: ConstructSuccess},
 			},
 			overwriting: map[string]struct{}{
-				getConcPath(fmt.Sprintf("baz/%s_test.go", name)): struct{}{},
+				getConcPath(fmt.Sprintf("baz/%s_test.go", ctx.name)): struct{}{},
 			},
 		},
 	}
 
 	for _, c := range cases {
-		ctx.repo.EXPECT().GetTemplates(sc).
+		ctx.repo.EXPECT().GetTemplates(ctx.scaffold).
 			Return(c.tmpls, nil)
 		ctx.repo.EXPECT().
-			GetConcreteEntries(sc, c.tmpls, c.values).
+			GetConcreteEntries(ctx.scaffold, c.tmpls, c.values).
 			Return(c.existings, nil)
 
 		for _, tmpl := range c.tmpls {
@@ -159,7 +163,7 @@ func Test_ConstructService(t *testing.T) {
 
 		err := ctx.service.Perform(
 			ctx.root,
-			sc,
+			ctx.scaffold,
 			c.values,
 			func(path string, dir, conflicted bool, status ConstructStatus) {
 				calls[path] = &constructCallbackCall{dir: dir, conflicted: conflicted, status: status}
