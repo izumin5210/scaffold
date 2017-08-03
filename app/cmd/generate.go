@@ -21,9 +21,10 @@ func NewGenerateCommandFactories(
 	getScaffolds usecase.GetScaffoldsUseCase,
 	createScaffold usecase.CreateScaffoldUseCase,
 	ui ui.UI,
+	dir string,
 ) (map[string]cli.CommandFactory, error) {
 	factories := map[string]cli.CommandFactory{}
-	scffs, err := getScaffolds.Perform()
+	scffs, err := getScaffolds.Perform(dir)
 	if err != nil {
 		return nil, errors.Cause(err)
 	}

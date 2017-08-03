@@ -16,6 +16,6 @@ func NewGetScaffoldsUseCase(
 	return &getScaffoldsUseCase{repo: repo}
 }
 
-func (u *getScaffoldsUseCase) Perform() ([]scaffold.Scaffold, error) {
-	return u.repo.GetAll()
+func (u *getScaffoldsUseCase) Perform(dir string) ([]scaffold.Scaffold, error) {
+	return u.repo.GetScaffolds(dir)
 }

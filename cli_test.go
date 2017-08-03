@@ -26,6 +26,7 @@ type cliTestContext struct {
 	getScaffolds   *usecase.MockGetScaffoldsUseCase
 	createScaffold *usecase.MockCreateScaffoldUseCase
 	name           string
+	dir            string
 	version        string
 	revision       string
 }
@@ -46,8 +47,10 @@ func getCLITestContext(t *testing.T) *cliTestContext {
 	ctx.EXPECT().CreateScaffoldUseCase().Return(createScaffold).AnyTimes()
 	ctx.EXPECT().UI().Return(ui).AnyTimes()
 	name := "scaffold"
+	dir := "/app/.scaffold"
 	version := "0.1.1"
 	revision := "aaaaaaa"
+	ctx.EXPECT().TemplatesPath().Return(dir).AnyTimes()
 	return &cliTestContext{
 		ctrl:           ctrl,
 		ctx:            ctx,
@@ -58,6 +61,7 @@ func getCLITestContext(t *testing.T) *cliTestContext {
 		getScaffolds:   getScaffolds,
 		createScaffold: createScaffold,
 		name:           name,
+		dir:            "/app/.scaffold",
 		version:        version,
 		revision:       revision,
 	}
@@ -73,7 +77,7 @@ func Test_CLI_Run_WithVersion(t *testing.T) {
 
 	for _, args := range [][]string{{"-v"}, {"--version"}} {
 		cli := getTestCLI(ctx)
-		ctx.getScaffolds.EXPECT().Perform().Return([]scaffold.Scaffold{}, nil).Times(1)
+		ctx.getScaffolds.EXPECT().Perform(ctx.dir).Return([]scaffold.Scaffold{}, nil).Times(1)
 
 		if actual, expected := cli.Run(args), ui.ExitCodeOK; actual != expected {
 			t.Errorf("Run(%v) returns %d, want %d", args, actual, expected)
@@ -98,7 +102,7 @@ func Test_CLI_Run_WhenGetScaffoldsFailed(t *testing.T) {
 	defer ctx.ctrl.Finish()
 	cli := getTestCLI(ctx)
 
-	ctx.getScaffolds.EXPECT().Perform().Return(nil, errors.New("error"))
+	ctx.getScaffolds.EXPECT().Perform(ctx.dir).Return(nil, errors.New("error"))
 	ctx.ui.EXPECT().Error(gomock.Any())
 
 	if actual, expected := cli.Run([]string{"g"}), ui.ExitCodeFailedToGetScaffoldsError; actual != expected {
@@ -115,7 +119,7 @@ func Test_CLI_Run_WhenGetScaffoldsFailed_WithVersionOrHelp(t *testing.T) {
 	defer ctx.ctrl.Finish()
 
 	for _, args := range [][]string{{"-v"}, {"--version"}, {"-h"}, {"--help"}} {
-		ctx.getScaffolds.EXPECT().Perform().Return(nil, errors.New("error"))
+		ctx.getScaffolds.EXPECT().Perform(ctx.dir).Return(nil, errors.New("error"))
 		cli := getTestCLI(ctx)
 
 		if actual, expected := cli.Run(args), ui.ExitCodeOK; actual != expected {
@@ -128,7 +132,7 @@ func Test_CLI_Run_WhenGetScaffoldsFailed_WithNoArgs(t *testing.T) {
 	ctx := getCLITestContext(t)
 	defer ctx.ctrl.Finish()
 
-	ctx.getScaffolds.EXPECT().Perform().Return(nil, errors.New("error"))
+	ctx.getScaffolds.EXPECT().Perform(ctx.dir).Return(nil, errors.New("error"))
 	cli := getTestCLI(ctx)
 	cli.Run([]string{})
 }

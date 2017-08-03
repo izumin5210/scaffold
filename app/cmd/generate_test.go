@@ -18,6 +18,7 @@ type generateTestContext struct {
 	createScaffold *usecase.MockCreateScaffoldUseCase
 	getScaffolds   *usecase.MockGetScaffoldsUseCase
 	ui             *ui.MockUI
+	dir            string
 }
 
 func getGenerateTestContext(t *testing.T) *generateTestContext {
@@ -30,6 +31,7 @@ func getGenerateTestContext(t *testing.T) *generateTestContext {
 		createScaffold: createScaffold,
 		getScaffolds:   getScaffolds,
 		ui:             ui,
+		dir:            "/app",
 	}
 }
 
@@ -57,12 +59,13 @@ func Test_NewGenerateCommandFactories(t *testing.T) {
 		scffs = append(scffs, s)
 	}
 
-	ctx.getScaffolds.EXPECT().Perform().Return(scffs, nil)
+	ctx.getScaffolds.EXPECT().Perform(ctx.dir).Return(scffs, nil)
 
 	factories, err := NewGenerateCommandFactories(
 		ctx.getScaffolds,
 		ctx.createScaffold,
 		ctx.ui,
+		ctx.dir,
 	)
 
 	if err != nil {
