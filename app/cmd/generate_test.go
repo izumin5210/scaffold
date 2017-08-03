@@ -18,7 +18,8 @@ type generateTestContext struct {
 	createScaffold *usecase.MockCreateScaffoldUseCase
 	getScaffolds   *usecase.MockGetScaffoldsUseCase
 	ui             *ui.MockUI
-	dir            string
+	rootPath       string
+	tmplsPath      string
 }
 
 func getGenerateTestContext(t *testing.T) *generateTestContext {
@@ -31,7 +32,8 @@ func getGenerateTestContext(t *testing.T) *generateTestContext {
 		createScaffold: createScaffold,
 		getScaffolds:   getScaffolds,
 		ui:             ui,
-		dir:            "/app",
+		rootPath:       "/app",
+		tmplsPath:      "/app/.scaffold",
 	}
 }
 
@@ -40,6 +42,7 @@ func getGenerateTestCommand(
 	scff scaffold.Scaffold,
 ) *generateCommand {
 	return &generateCommand{
+		rootPath:       ctx.rootPath,
 		scaffold:       scff,
 		createScaffold: ctx.createScaffold,
 		ui:             ctx.ui,
@@ -59,13 +62,14 @@ func Test_NewGenerateCommandFactories(t *testing.T) {
 		scffs = append(scffs, s)
 	}
 
-	ctx.getScaffolds.EXPECT().Perform(ctx.dir).Return(scffs, nil)
+	ctx.getScaffolds.EXPECT().Perform(ctx.tmplsPath).Return(scffs, nil)
 
 	factories, err := NewGenerateCommandFactories(
 		ctx.getScaffolds,
 		ctx.createScaffold,
 		ctx.ui,
-		ctx.dir,
+		ctx.rootPath,
+		ctx.tmplsPath,
 	)
 
 	if err != nil {
@@ -100,7 +104,7 @@ func Test_Generate_Run(t *testing.T) {
 	cmd := getGenerateTestCommand(ctx, scff)
 	name := "foo"
 
-	ctx.createScaffold.EXPECT().Perform(scff, name).Return(nil)
+	ctx.createScaffold.EXPECT().Perform(scff, ctx.rootPath, name).Return(nil)
 
 	code := cmd.Run([]string{name})
 
@@ -132,7 +136,7 @@ func Test_Generate_Run_WhenCreateScffoldFaild(t *testing.T) {
 	cmd := getGenerateTestCommand(ctx, scff)
 	name := "foo"
 
-	ctx.createScaffold.EXPECT().Perform(scff, name).Return(errors.New("error"))
+	ctx.createScaffold.EXPECT().Perform(scff, ctx.rootPath, name).Return(errors.New("error"))
 	ctx.ui.EXPECT().Error(gomock.Any())
 
 	code := cmd.Run([]string{name})

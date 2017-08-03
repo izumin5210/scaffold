@@ -11,6 +11,7 @@ import (
 )
 
 type generateCommand struct {
+	rootPath       string
 	scaffold       scaffold.Scaffold
 	createScaffold usecase.CreateScaffoldUseCase
 	ui             ui.UI
@@ -21,26 +22,29 @@ func NewGenerateCommandFactories(
 	getScaffolds usecase.GetScaffoldsUseCase,
 	createScaffold usecase.CreateScaffoldUseCase,
 	ui ui.UI,
-	dir string,
+	rootPath string,
+	scaffoldsPath string,
 ) (map[string]cli.CommandFactory, error) {
 	factories := map[string]cli.CommandFactory{}
-	scffs, err := getScaffolds.Perform(dir)
+	scffs, err := getScaffolds.Perform(scaffoldsPath)
 	if err != nil {
 		return nil, errors.Cause(err)
 	}
 	for _, s := range scffs {
-		factories[s.Name()] = newGenerateCommandFactory(s, createScaffold, ui)
+		factories[s.Name()] = newGenerateCommandFactory(rootPath, s, createScaffold, ui)
 	}
 	return factories, nil
 }
 
 func newGenerateCommandFactory(
+	rootPath string,
 	s scaffold.Scaffold,
 	createScaffold usecase.CreateScaffoldUseCase,
 	ui ui.UI,
 ) cli.CommandFactory {
 	return func() (cli.Command, error) {
 		return &generateCommand{
+			rootPath:       rootPath,
 			scaffold:       s,
 			createScaffold: createScaffold,
 			ui:             ui,
@@ -67,7 +71,7 @@ func (c *generateCommand) Run(args []string) int {
 		c.ui.Error(fmt.Sprintf("Invalid arguments: %v", args))
 		return ui.ExitCodeInvalidArgumentListLengthError
 	}
-	if err := c.createScaffold.Perform(c.scaffold, args[0]); err != nil {
+	if err := c.createScaffold.Perform(c.scaffold, c.rootPath, args[0]); err != nil {
 		c.ui.Error(fmt.Sprintf("Error: %s", err.Error()))
 		return ui.ExitCodeFailedToCreatetScaffoldsError
 	}

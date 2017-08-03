@@ -51,6 +51,7 @@ func (c *cli) getCommands() (cmd.CommandFactories, error) {
 		c.ctx.GetScaffoldsUseCase(),
 		c.ctx.CreateScaffoldUseCase(),
 		c.ctx.UI(),
+		c.ctx.RootPath(),
 		c.ctx.TemplatesPath(),
 	)
 	for n, f := range genScffFactories {

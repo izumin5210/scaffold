@@ -73,6 +73,10 @@ func (c *context) ErrWriter() io.Writer {
 	return c.errWriter
 }
 
+func (c *context) ConstructService() scaffold.ConstructService {
+	return scaffold.NewConstructService(c.Repository())
+}
+
 func (c *context) Repository() scaffold.Repository {
 	if c.repo == nil {
 		c.repo = scaffoldrepo.New(c.rootPath, c.tmplsPath, c.fs)
@@ -89,5 +93,5 @@ func (c *context) GetScaffoldsUseCase() usecase.GetScaffoldsUseCase {
 }
 
 func (c *context) CreateScaffoldUseCase() usecase.CreateScaffoldUseCase {
-	return usecaseImpl.NewCreateScaffoldUseCase(c.RootPath(), c.Repository(), c.UI())
+	return usecaseImpl.NewCreateScaffoldUseCase(c.ConstructService(), c.UI())
 }
