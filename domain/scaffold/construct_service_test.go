@@ -6,6 +6,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/pkg/errors"
+
 	"github.com/golang/mock/gomock"
 )
 
@@ -192,5 +194,145 @@ func Test_ConstructService(t *testing.T) {
 				t.Errorf("Call for %q was %v, want %v", path, got, want)
 			}
 		}
+	}
+}
+
+func Test_ConstructService_WhenGetTemplatesFailed(t *testing.T) {
+	ctx := newConstructServiceTestContext(t)
+	defer ctx.ctrl.Finish()
+
+	ctx.repo.EXPECT().GetTemplates(ctx.scaffold).
+		Return(nil, errors.New("error"))
+
+	err := ctx.service.Perform(
+		ctx.root,
+		ctx.scaffold,
+		struct{ Name string }{Name: ctx.name},
+		func(path string, dir, conflicted bool, status ConstructStatus) {
+			t.Errorf("Unexpected callback detected %v", path)
+		},
+		func(path, oldContent, newContent string) bool {
+			t.Errorf("Unexpected conflict detected %v", path)
+			return false
+		},
+	)
+
+	if err == nil {
+		t.Error("Perform() returns nil, want an error")
+	}
+}
+
+func Test_ConstructService_WhenGetConcreteEntriesFailed(t *testing.T) {
+	ctx := newConstructServiceTestContext(t)
+	defer ctx.ctrl.Finish()
+
+	tmpls := []TemplateEntry{
+		NewTemplateFile(
+			TemplateString(filepath.Join(ctx.scaffold.Path(), "foo.go")),
+			"package main",
+			ctx.root,
+		),
+	}
+	v := struct{ Name string }{Name: ctx.name}
+
+	ctx.repo.EXPECT().GetTemplates(ctx.scaffold).
+		Return(tmpls, nil)
+
+	ctx.repo.EXPECT().GetConcreteEntries(ctx.scaffold, tmpls, v).
+		Return(nil, errors.New("error"))
+
+	err := ctx.service.Perform(
+		ctx.root,
+		ctx.scaffold,
+		struct{ Name string }{Name: ctx.name},
+		func(path string, dir, conflicted bool, status ConstructStatus) {
+			t.Errorf("Unexpected callback detected %v", path)
+		},
+		func(path, oldContent, newContent string) bool {
+			t.Errorf("Unexpected conflict detected %v", path)
+			return false
+		},
+	)
+
+	if err == nil {
+		t.Error("Perform() returns nil, want an error")
+	}
+}
+
+func Test_ConstructService_WhenCompileTemplateFailed(t *testing.T) {
+	ctx := newConstructServiceTestContext(t)
+	defer ctx.ctrl.Finish()
+
+	tmpls := []TemplateEntry{
+		NewTemplateFile(
+			TemplateString(filepath.Join(ctx.scaffold.Path(), "{{name}.go")),
+			"package main",
+			ctx.root,
+		),
+	}
+	v := struct{ Name string }{Name: ctx.name}
+
+	ctx.repo.EXPECT().GetTemplates(ctx.scaffold).
+		Return(tmpls, nil)
+
+	ctx.repo.EXPECT().GetConcreteEntries(ctx.scaffold, tmpls, v).
+		Return(map[string]ConcreteEntry{}, nil)
+
+	err := ctx.service.Perform(
+		ctx.root,
+		ctx.scaffold,
+		struct{ Name string }{Name: ctx.name},
+		func(path string, dir, conflicted bool, status ConstructStatus) {
+			t.Errorf("Unexpected callback detected %v", path)
+		},
+		func(path, oldContent, newContent string) bool {
+			t.Errorf("Unexpected conflict detected %v", path)
+			return false
+		},
+	)
+
+	if err == nil {
+		t.Error("Perform() returns nil, want an error")
+	}
+}
+
+func Test_ConstructService_WhenCreateEntryFailed(t *testing.T) {
+	ctx := newConstructServiceTestContext(t)
+	defer ctx.ctrl.Finish()
+
+	tmpls := []TemplateEntry{
+		NewTemplateFile(
+			TemplateString(filepath.Join(ctx.scaffold.Path(), "foo.go")),
+			"package main",
+			ctx.root,
+		),
+	}
+	v := struct{ Name string }{Name: ctx.name}
+
+	ctx.repo.EXPECT().GetTemplates(ctx.scaffold).
+		Return(tmpls, nil)
+
+	ctx.repo.EXPECT().GetConcreteEntries(ctx.scaffold, tmpls, v).
+		Return(map[string]ConcreteEntry{}, nil)
+
+	conc, _ := tmpls[0].Compile(ctx.root, v)
+	ctx.repo.EXPECT().Create(conc).
+		Return(false, false, errors.New("error"))
+
+	err := ctx.service.Perform(
+		ctx.root,
+		ctx.scaffold,
+		struct{ Name string }{Name: ctx.name},
+		func(path string, dir, conflicted bool, status ConstructStatus) {
+			t.Errorf("Unexpected callback detected %v", path)
+		},
+		func(path, oldContent, newContent string) bool {
+			t.Errorf("Unexpected conflict detected %v", path)
+			return false
+		},
+	)
+
+	if err == nil {
+		t.Error("Perform() returns nil, want an error")
 	}
 }
