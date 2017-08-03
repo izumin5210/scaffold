@@ -1,3 +1,5 @@
+//go:generate mockgen -source=construct_service.go -package scaffold -destination=construct_service_mock.go
+
 package scaffold
 
 import (
