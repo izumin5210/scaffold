@@ -24,8 +24,8 @@ func Test_GetScaffoldsUseCase_Perform(t *testing.T) {
 	}
 
 	for _, testcase := range testcases {
-		repo.EXPECT().GetAll().Return(testcase.scaffolds, nil).Times(1)
-		scaffolds, err := u.Perform()
+		repo.EXPECT().GetScaffolds("/app").Return(testcase.scaffolds, nil).Times(1)
+		scaffolds, err := u.Perform("/app")
 
 		if err != nil {
 			t.Errorf("Unexpected error %v", err)

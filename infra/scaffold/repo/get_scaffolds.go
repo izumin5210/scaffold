@@ -1,8 +1,6 @@
 package repo
 
 import (
-	"path"
-
 	"path/filepath"
 
 	"github.com/BurntSushi/toml"
@@ -10,16 +8,16 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (r *repo) GetAll() ([]scaffold.Scaffold, error) {
-	dirs, err := r.fs.GetDirs(r.tmplsPath)
+func (r *repo) GetScaffolds(tmplsPath string) ([]scaffold.Scaffold, error) {
+	dirs, err := r.fs.GetDirs(tmplsPath)
 	if err != nil {
 		return nil, errors.Wrapf(err, "Failed to get directories from %q", err)
 	}
 	var scaffolds []scaffold.Scaffold
 	for _, dir := range dirs {
-		scPath := filepath.Join(r.tmplsPath, dir)
+		scPath := filepath.Join(tmplsPath, dir)
 		var meta scaffold.Meta
-		data, err := r.fs.ReadFile(path.Join(scPath, "meta.toml"))
+		data, err := r.fs.ReadFile(filepath.Join(scPath, "meta.toml"))
 		if err == nil {
 			toml.Decode(string(data), &meta)
 		}

@@ -15,7 +15,7 @@ import (
 type createScaffoldTestContext struct {
 	ctrl     *gomock.Controller
 	rootPath string
-	repo     *scaffold.MockRepository
+	service  *scaffold.MockConstructService
 	ui       *ui.MockUI
 }
 
@@ -23,17 +23,16 @@ func getCreateScaffoldTestContext(t *testing.T) *createScaffoldTestContext {
 	ctrl := gomock.NewController(t)
 	return &createScaffoldTestContext{
 		ctrl:     ctrl,
-		rootPath: "/app/.scaffold",
-		repo:     scaffold.NewMockRepository(ctrl),
+		rootPath: "/app",
+		service:  scaffold.NewMockConstructService(ctrl),
 		ui:       ui.NewMockUI(ctrl),
 	}
 }
 
 func getCreateScaffoldTestUseCase(ctx *createScaffoldTestContext) usecase.CreateScaffoldUseCase {
 	return &createScaffoldUseCase{
-		rootPath: ctx.rootPath,
-		repo:     ctx.repo,
-		ui:       ctx.ui,
+		constructSvc: ctx.service,
+		ui:           ctx.ui,
 	}
 }
 
@@ -104,14 +103,19 @@ func Test_CreateScaffold_Perform(t *testing.T) {
 	}
 
 	name := "bar"
-	scff := scaffold.NewScaffold(filepath.Join(ctx.rootPath, "foo"), &scaffold.Meta{})
-	ctx.repo.EXPECT().Construct(scff, name, gomock.Any(), gomock.Any()).
+	scff := scaffold.NewScaffold(filepath.Join(ctx.rootPath, ".scaffold", "foo"), &scaffold.Meta{})
+	ctx.service.EXPECT().Perform(ctx.rootPath, scff, gomock.Any(), gomock.Any(), gomock.Any()).
 		Do(func(
-			_ scaffold.Scaffold,
 			_ string,
+			_ scaffold.Scaffold,
+			v interface{},
 			cb scaffold.ConstructCallback,
 			conflictedCb scaffold.ConstructConflictedCallback,
 		) error {
+			params := v.(*createScaffoldParams)
+			if got, want := params.Name, name; got != want {
+				t.Errorf("ConstructService().Perform() received %q, want %q", got, want)
+			}
 			for p, c := range calls {
 				abspath := filepath.Join(ctx.rootPath, p)
 				if c.conflicted {
@@ -129,7 +133,7 @@ func Test_CreateScaffold_Perform(t *testing.T) {
 		After(ctx.ui.EXPECT().Ask(gomock.Any()).Return("n", nil).Times(1))
 
 	u := getCreateScaffoldTestUseCase(ctx)
-	err := u.Perform(scff, name)
+	err := u.Perform(scff, ctx.rootPath, name)
 
 	if err != nil {
 		t.Errorf("Unexpected error %v", err)

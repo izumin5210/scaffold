@@ -33,14 +33,14 @@ func (_m *MockGetScaffoldsUseCase) EXPECT() *MockGetScaffoldsUseCaseMockRecorder
 }
 
 // Perform mocks base method
-func (_m *MockGetScaffoldsUseCase) Perform() ([]scaffold.Scaffold, error) {
-	ret := _m.ctrl.Call(_m, "Perform")
+func (_m *MockGetScaffoldsUseCase) Perform(dir string) ([]scaffold.Scaffold, error) {
+	ret := _m.ctrl.Call(_m, "Perform", dir)
 	ret0, _ := ret[0].([]scaffold.Scaffold)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Perform indicates an expected call of Perform
-func (_mr *MockGetScaffoldsUseCaseMockRecorder) Perform() *gomock.Call {
-	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "Perform", reflect.TypeOf((*MockGetScaffoldsUseCase)(nil).Perform))
+func (_mr *MockGetScaffoldsUseCaseMockRecorder) Perform(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "Perform", reflect.TypeOf((*MockGetScaffoldsUseCase)(nil).Perform), arg0)
 }

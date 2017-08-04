@@ -7,7 +7,7 @@ import (
 
 // FS is filesystem wrapper interface
 type FS interface {
-	GetEntries(path string, recursive bool) ([]Entry, error)
+	GetEntries(path string, compact bool) ([]Entry, error)
 	GetDirs(path string) ([]string, error)
 	ReadFile(path string) ([]byte, error)
 	CreateDir(path string) (bool, error)

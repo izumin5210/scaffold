@@ -31,27 +31,55 @@ func (_m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return _m.recorder
 }
 
-// GetAll mocks base method
-func (_m *MockRepository) GetAll() ([]Scaffold, error) {
-	ret := _m.ctrl.Call(_m, "GetAll")
+// GetScaffolds mocks base method
+func (_m *MockRepository) GetScaffolds(tmplsPath string) ([]Scaffold, error) {
+	ret := _m.ctrl.Call(_m, "GetScaffolds", tmplsPath)
 	ret0, _ := ret[0].([]Scaffold)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetAll indicates an expected call of GetAll
-func (_mr *MockRepositoryMockRecorder) GetAll() *gomock.Call {
-	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "GetAll", reflect.TypeOf((*MockRepository)(nil).GetAll))
+// GetScaffolds indicates an expected call of GetScaffolds
+func (_mr *MockRepositoryMockRecorder) GetScaffolds(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "GetScaffolds", reflect.TypeOf((*MockRepository)(nil).GetScaffolds), arg0)
 }
 
-// Construct mocks base method
-func (_m *MockRepository) Construct(scff Scaffold, name string, cb ConstructCallback, conflictedCb ConstructConflictedCallback) error {
-	ret := _m.ctrl.Call(_m, "Construct", scff, name, cb, conflictedCb)
-	ret0, _ := ret[0].(error)
-	return ret0
+// GetTemplates mocks base method
+func (_m *MockRepository) GetTemplates(s Scaffold) ([]TemplateEntry, error) {
+	ret := _m.ctrl.Call(_m, "GetTemplates", s)
+	ret0, _ := ret[0].([]TemplateEntry)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
-// Construct indicates an expected call of Construct
-func (_mr *MockRepositoryMockRecorder) Construct(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "Construct", reflect.TypeOf((*MockRepository)(nil).Construct), arg0, arg1, arg2, arg3)
+// GetTemplates indicates an expected call of GetTemplates
+func (_mr *MockRepositoryMockRecorder) GetTemplates(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "GetTemplates", reflect.TypeOf((*MockRepository)(nil).GetTemplates), arg0)
+}
+
+// GetConcreteEntries mocks base method
+func (_m *MockRepository) GetConcreteEntries(s Scaffold, tmpls []TemplateEntry, v interface{}) (map[string]ConcreteEntry, error) {
+	ret := _m.ctrl.Call(_m, "GetConcreteEntries", s, tmpls, v)
+	ret0, _ := ret[0].(map[string]ConcreteEntry)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetConcreteEntries indicates an expected call of GetConcreteEntries
+func (_mr *MockRepositoryMockRecorder) GetConcreteEntries(arg0, arg1, arg2 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "GetConcreteEntries", reflect.TypeOf((*MockRepository)(nil).GetConcreteEntries), arg0, arg1, arg2)
+}
+
+// Create mocks base method
+func (_m *MockRepository) Create(e Entry) (bool, bool, error) {
+	ret := _m.ctrl.Call(_m, "Create", e)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(bool)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// Create indicates an expected call of Create
+func (_mr *MockRepositoryMockRecorder) Create(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "Create", reflect.TypeOf((*MockRepository)(nil).Create), arg0)
 }

@@ -32,8 +32,8 @@ func (_m *MockFS) EXPECT() *MockFSMockRecorder {
 }
 
 // GetEntries mocks base method
-func (_m *MockFS) GetEntries(path string, recursive bool) ([]Entry, error) {
-	ret := _m.ctrl.Call(_m, "GetEntries", path, recursive)
+func (_m *MockFS) GetEntries(path string, compact bool) ([]Entry, error) {
+	ret := _m.ctrl.Call(_m, "GetEntries", path, compact)
 	ret0, _ := ret[0].([]Entry)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1

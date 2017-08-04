@@ -6,5 +6,5 @@ import (
 
 // CreateScaffoldUseCase is an use-case for loading scaffolds
 type CreateScaffoldUseCase interface {
-	Perform(scff scaffold.Scaffold, name string) error
+	Perform(scff scaffold.Scaffold, rootPath, name string) error
 }

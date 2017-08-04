@@ -51,11 +51,8 @@ type ConstructConflictedCallback func(path, oldContent, newContent string) bool
 
 // Repository is a repository for scaffolds
 type Repository interface {
-	GetAll() ([]Scaffold, error)
-	Construct(
-		scff Scaffold,
-		name string,
-		cb ConstructCallback,
-		conflictedCb ConstructConflictedCallback,
-	) error
+	GetScaffolds(tmplsPath string) ([]Scaffold, error)
+	GetTemplates(s Scaffold) ([]TemplateEntry, error)
+	GetConcreteEntries(s Scaffold, tmpls []TemplateEntry, v interface{}) (map[string]ConcreteEntry, error)
+	Create(e Entry) (bool, bool, error)
 }

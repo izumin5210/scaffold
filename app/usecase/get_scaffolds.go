@@ -6,5 +6,5 @@ import (
 
 // GetScaffoldsUseCase is an use-case for loading scaffolds
 type GetScaffoldsUseCase interface {
-	Perform() ([]scaffold.Scaffold, error)
+	Perform(dir string) ([]scaffold.Scaffold, error)
 }
