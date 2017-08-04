@@ -54,10 +54,13 @@ func (s TemplateString) createFuncMap(v interface{}) (gotemplate.FuncMap, error)
 
 	if v != nil {
 		rv := reflect.ValueOf(v)
-		if rv.Kind() != reflect.Struct {
-			return nil, errors.Errorf("Unsupported type: %v", rv.Kind())
+		for rv.Kind() != reflect.Struct {
+			if rv.Kind() == reflect.Ptr || rv.Kind() == reflect.Interface {
+				rv = rv.Elem()
+			} else {
+				return nil, errors.Errorf("Unsupported type: %v", rv.Kind())
+			}
 		}
-
 		rt := rv.Type()
 		for i := 0; i < rt.NumField(); i++ {
 			ft := rt.Field(i)

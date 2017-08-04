@@ -75,6 +75,11 @@ func Test_TemplateString_Compile(t *testing.T) {
 			text:     "{{name | firstChild | toUpper}}",
 			expected: "T",
 		},
+		{
+			value:    &struct{ Name string }{Name: "test_case"},
+			text:     "{{name}}",
+			expected: "test_case",
+		},
 	}
 
 	for _, c := range testcases {
