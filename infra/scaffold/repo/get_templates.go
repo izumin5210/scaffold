@@ -16,6 +16,9 @@ func (r *repo) GetTemplates(s scaffold.Scaffold) ([]scaffold.TemplateEntry, erro
 		if e.IsDir() {
 			tmpls = append(tmpls, scaffold.NewTemplateDir(tmplPath, s.Path()))
 		} else {
+			if e.BaseName() == "meta.toml" && e.DirName() == s.Path() {
+				continue
+			}
 			content, err := r.fs.ReadFile(e.Path())
 			if err != nil {
 				return nil, errors.Wrapf(err, "Failed to read template %q", e.Path())

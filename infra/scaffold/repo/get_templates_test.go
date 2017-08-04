@@ -32,8 +32,9 @@ func Test_GetTemplates(t *testing.T) {
 	//     ├── {{name}}.go
 	//     └── {{name}}_test.go
 	cases := []struct {
-		entries  []fs.Entry
-		contents map[string]string
+		entries      []fs.Entry
+		contents     map[string]string
+		excludeCount int
 	}{
 		{},
 		{
@@ -44,6 +45,8 @@ func Test_GetTemplates(t *testing.T) {
 				repotesting.NewFSEntry(filepath.Join(scff.Path(), "baz/{{name}}.go"), false),
 				repotesting.NewFSEntry(filepath.Join(scff.Path(), "baz/{{name}}/garply"), true),
 				repotesting.NewFSEntry(filepath.Join(scff.Path(), "baz/{{name}}_test.go"), false),
+				repotesting.NewFSEntry(filepath.Join(scff.Path(), "meta/meta.toml"), false),
+				repotesting.NewFSEntry(filepath.Join(scff.Path(), "meta.toml"), false),
 			},
 			contents: map[string]string{
 				"{{name}}.go":          "package main",
@@ -51,7 +54,9 @@ func Test_GetTemplates(t *testing.T) {
 				"bar/qux/corge.go":     "package qux",
 				"baz/{{name}}.go":      "package baz\n\ntype {{name | pascalize}} interface{}",
 				"baz/{{name}}_test.go": "package baz",
+				"meta/meta.toml":       "",
 			},
+			excludeCount: 1,
 		},
 	}
 
@@ -66,7 +71,7 @@ func Test_GetTemplates(t *testing.T) {
 			t.Errorf("Unexpected error: %v", err)
 		}
 
-		if actual, expected := len(tmpls), len(c.entries); actual != expected {
+		if actual, expected := len(tmpls), len(c.entries)-c.excludeCount; actual != expected {
 			t.Errorf("GetTemplates() returns %d items, but expected %d items", actual, expected)
 		}
 
