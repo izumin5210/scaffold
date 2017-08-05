@@ -141,6 +141,23 @@ func Test_CreateFile(t *testing.T) {
 	}
 }
 
+func Test_Remove(t *testing.T) {
+	afs := afero.Afero{Fs: afero.NewMemMapFs()}
+	fs := &fs{afs: afs}
+
+	afs.Mkdir("/foo", 0755)
+	afs.WriteFile("/foo/bar", []byte("bar"), 0644)
+	afs.WriteFile("/foo/baz", []byte("baz"), 0644)
+
+	if err := fs.Remove("/foo/baz"); err != nil {
+		t.Errorf("Unexpected error %v", err)
+	}
+
+	if ok, _ := afs.Exists("/foo/baz"); ok {
+		t.Error("/foo/baz should be deleted")
+	}
+}
+
 func Test_Exists(t *testing.T) {
 	afs := afero.Afero{Fs: afero.NewMemMapFs()}
 	fs := &fs{afs: afs}
