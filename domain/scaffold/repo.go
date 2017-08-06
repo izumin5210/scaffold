@@ -55,4 +55,5 @@ type Repository interface {
 	GetTemplates(s Scaffold) ([]TemplateEntry, error)
 	GetConcreteEntries(s Scaffold, tmpls []TemplateEntry, v interface{}) (map[string]ConcreteEntry, error)
 	Create(e Entry) (bool, bool, error)
+	Remove(e Entry) ([]string, error)
 }

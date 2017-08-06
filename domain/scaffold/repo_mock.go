@@ -83,3 +83,16 @@ func (_m *MockRepository) Create(e Entry) (bool, bool, error) {
 func (_mr *MockRepositoryMockRecorder) Create(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "Create", reflect.TypeOf((*MockRepository)(nil).Create), arg0)
 }
+
+// Remove mocks base method
+func (_m *MockRepository) Remove(e Entry) ([]string, error) {
+	ret := _m.ctrl.Call(_m, "Remove", e)
+	ret0, _ := ret[0].([]string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Remove indicates an expected call of Remove
+func (_mr *MockRepositoryMockRecorder) Remove(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "Remove", reflect.TypeOf((*MockRepository)(nil).Remove), arg0)
+}
