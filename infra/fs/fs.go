@@ -12,6 +12,7 @@ type FS interface {
 	ReadFile(path string) ([]byte, error)
 	CreateDir(path string) (bool, error)
 	CreateFile(path string, content string) error
+	Remove(path string) error
 	Exists(path string) (bool, error)
 	DirExists(path string) (bool, error)
 }
@@ -65,6 +66,10 @@ func (f *fs) CreateDir(path string) (bool, error) {
 
 func (f *fs) CreateFile(path string, content string) error {
 	return f.afs.WriteFile(path, []byte(content), 0644)
+}
+
+func (f *fs) Remove(path string) error {
+	return f.afs.Remove(path)
 }
 
 func (f *fs) Exists(path string) (bool, error) {

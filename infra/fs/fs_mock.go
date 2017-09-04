@@ -95,6 +95,18 @@ func (_mr *MockFSMockRecorder) CreateFile(arg0, arg1 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "CreateFile", reflect.TypeOf((*MockFS)(nil).CreateFile), arg0, arg1)
 }
 
+// Remove mocks base method
+func (_m *MockFS) Remove(path string) error {
+	ret := _m.ctrl.Call(_m, "Remove", path)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Remove indicates an expected call of Remove
+func (_mr *MockFSMockRecorder) Remove(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "Remove", reflect.TypeOf((*MockFS)(nil).Remove), arg0)
+}
+
 // Exists mocks base method
 func (_m *MockFS) Exists(path string) (bool, error) {
 	ret := _m.ctrl.Call(_m, "Exists", path)
