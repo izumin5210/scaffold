@@ -1,13 +1,13 @@
-package scaffold
+package template
 
 import (
 	"testing"
 )
 
-func Test_TemplateString_Compile(t *testing.T) {
+func Test_String_Compile(t *testing.T) {
 	testcases := []struct {
 		value    interface{}
-		text     TemplateString
+		text     String
 		expected string
 	}{
 		{
@@ -95,8 +95,8 @@ func Test_TemplateString_Compile(t *testing.T) {
 	}
 }
 
-func Test_TemplateString_Compile_WithInvalidString(t *testing.T) {
-	var ts TemplateString = "{{name}"
+func Test_String_Compile_WithInvalidString(t *testing.T) {
+	var ts String = "{{name}"
 	s, err := ts.Compile("template", struct{ Name string }{Name: "foobar"})
 
 	if actual, expected := s, string(ts); actual != expected {
@@ -108,8 +108,8 @@ func Test_TemplateString_Compile_WithInvalidString(t *testing.T) {
 	}
 }
 
-func Test_TemplateString_Compile_WithPrivateFields(t *testing.T) {
-	var ts TemplateString = "package {{namespace}}\n\n type {{name}} struct{}"
+func Test_String_Compile_WithPrivateFields(t *testing.T) {
+	var ts String = "package {{namespace}}\n\n type {{name}} struct{}"
 	s, err := ts.Compile("template", struct{ Name, namespace string }{Name: "foobar", namespace: "baz"})
 
 	if actual, expected := s, string(ts); actual != expected {
@@ -121,8 +121,8 @@ func Test_TemplateString_Compile_WithPrivateFields(t *testing.T) {
 	}
 }
 
-func Test_TemplateString_Compile_WithUnsupportedTypeValue(t *testing.T) {
-	var ts TemplateString = "{{name}}"
+func Test_String_Compile_WithUnsupportedTypeValue(t *testing.T) {
+	var ts String = "{{name}}"
 	s, err := ts.Compile("template", struct{ Name int }{Name: 1})
 
 	if actual, expected := s, string(ts); actual != expected {
@@ -134,8 +134,8 @@ func Test_TemplateString_Compile_WithUnsupportedTypeValue(t *testing.T) {
 	}
 }
 
-func Test_TemplateString_Compile_WithNotStructObject(t *testing.T) {
-	var ts TemplateString = "foobar"
+func Test_String_Compile_WithNotStructObject(t *testing.T) {
+	var ts String = "foobar"
 	s, err := ts.Compile("template", 1)
 
 	if actual, expected := s, string(ts); actual != expected {
@@ -147,8 +147,8 @@ func Test_TemplateString_Compile_WithNotStructObject(t *testing.T) {
 	}
 }
 
-func Test_TemplateString_Compile_WithNoGivenValue(t *testing.T) {
-	var ts TemplateString = "{{name}}"
+func Test_String_Compile_WithNoGivenValue(t *testing.T) {
+	var ts String = "{{name}}"
 	s, err := ts.Compile("template", struct{}{})
 
 	if actual, expected := s, string(ts); actual != expected {

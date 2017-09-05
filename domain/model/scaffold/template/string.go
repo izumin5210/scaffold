@@ -1,4 +1,4 @@
-package scaffold
+package template
 
 import (
 	"bytes"
@@ -12,11 +12,11 @@ import (
 	"github.com/serenize/snaker"
 )
 
-// TemplateString is a compilable string with text/template package
-type TemplateString string
+// String is a compilable string with text/template package
+type String string
 
 // Compile generates textual output applied a parsed template to the specified values
-func (s TemplateString) Compile(name string, v interface{}) (string, error) {
+func (s String) Compile(name string, v interface{}) (string, error) {
 	tmpl := gotemplate.New(name)
 	fmap, err := s.createFuncMap(v)
 	if err != nil {
@@ -49,7 +49,7 @@ var defaultFuncMap = gotemplate.FuncMap{
 	"firstChild":  func(s string) string { return s[:1] },
 }
 
-func (s TemplateString) createFuncMap(v interface{}) (gotemplate.FuncMap, error) {
+func (s String) createFuncMap(v interface{}) (gotemplate.FuncMap, error) {
 	fmap := gotemplate.FuncMap{}
 
 	if v != nil {
