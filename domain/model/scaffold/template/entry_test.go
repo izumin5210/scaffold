@@ -6,11 +6,10 @@ import (
 
 func Test_NewTemplateFile(t *testing.T) {
 	const (
-		path     String = "/app/.scaffold/foo.go"
-		content  String = "package app"
-		tmplRoot string = "/app/.scaffold"
+		path    String = "/app/.scaffold/foo.go"
+		content String = "package app"
 	)
-	f := NewTemplateFile(path, content, tmplRoot)
+	f := NewTemplateFile(path, content)
 
 	if actual, expected := f.Path(), path; actual != expected {
 		t.Errorf("Path() returns %q, want %q", actual, expected)
@@ -27,10 +26,9 @@ func Test_NewTemplateFile(t *testing.T) {
 
 func Test_NewTemplateDir(t *testing.T) {
 	const (
-		path     String = "/app/foo.go"
-		tmplRoot string = "/app/.scaffold"
+		path String = "/app/foo.go"
 	)
-	d := NewTemplateDir(path, tmplRoot)
+	d := NewTemplateDir(path)
 
 	if actual, expected := d.Path(), path; actual != expected {
 		t.Errorf("Path() returns %q, want %q", actual, expected)
@@ -63,10 +61,8 @@ func Test_NewEntry(t *testing.T) {
 		},
 	}
 
-	tmplRoot := "/app/.scaffold"
-
 	for _, c := range cases {
-		e := NewEntry(String(c.path), String(c.content), c.dir, tmplRoot)
+		e := NewEntry(String(c.path), String(c.content), c.dir)
 
 		if actual, expected := e.Path(), c.path; actual != expected {
 			t.Errorf("Path() returns %q, want %q", actual, expected)

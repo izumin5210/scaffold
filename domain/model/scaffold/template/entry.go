@@ -14,29 +14,27 @@ type Entry interface {
 }
 
 type entry struct {
-	path         String
-	content      String
-	templateRoot string
-	dir          bool
+	path    String
+	content String
+	dir     bool
 }
 
 // NewTemplateFile returns a new Entry object treated as a file
-func NewTemplateFile(path, content String, templateRoot string) Entry {
-	return NewEntry(path, content, false, templateRoot)
+func NewTemplateFile(path, content String) Entry {
+	return NewEntry(path, content, false)
 }
 
 // NewTemplateDir returns a new Entry object treated as a directory
-func NewTemplateDir(path String, templateRoot string) Entry {
-	return NewEntry(path, "", true, templateRoot)
+func NewTemplateDir(path String) Entry {
+	return NewEntry(path, "", true)
 }
 
 // NewEntry returns a new Entry object
-func NewEntry(path, content String, dir bool, templateRoot string) Entry {
+func NewEntry(path, content String, dir bool) Entry {
 	return &entry{
-		path:         path,
-		content:      content,
-		dir:          dir,
-		templateRoot: templateRoot,
+		path:    path,
+		content: content,
+		dir:     dir,
 	}
 }
 
