@@ -1,7 +1,10 @@
 package template
 
 import (
+	"reflect"
 	"testing"
+
+	"github.com/izumin5210/scaffold/domain/model/scaffold/concrete"
 )
 
 func Test_NewFile(t *testing.T) {
@@ -78,67 +81,59 @@ func Test_NewEntry(t *testing.T) {
 	}
 }
 
-// func Test_Entry_Compile(t *testing.T) {
-// 	root := "/app"
-// 	tmplRoot := filepath.Join(root, ".scaffold")
-// 	getConcPath := func(path string) string {
-// 		return filepath.Join(root, path)
-// 	}
-// 	getTmplPath := func(path string) String {
-// 		return String(filepath.Join(tmplRoot, path))
-// 	}
-// 	cases := []struct {
-// 		in  Entry
-// 		v   interface{}
-// 		out Entry
-// 	}{
-// 		{
-// 			in:  NewTemplateDir(getTmplPath("{{name}}"), tmplRoot),
-// 			v:   struct{ Name string }{Name: "foobar"},
-// 			out: NewEntry(getConcPath("foobar"), "", true),
-// 		},
-// 		{
-// 			in:  NewTemplateFile(getTmplPath("{{name}}.go"), "package {{namespace}}\n\ntype {{name}} struct{}", tmplRoot),
-// 			v:   struct{ Name, Namespace string }{Name: "foobar", Namespace: "app"},
-// 			out: NewEntry(getConcPath("foobar.go"), "package app\n\ntype foobar struct{}", false),
-// 		},
-// 	}
+func Test_Entry_Compile(t *testing.T) {
+	cases := []struct {
+		in  Entry
+		v   interface{}
+		out concrete.Entry
+	}{
+		{
+			in:  NewDir("/app/{{name}}"),
+			v:   struct{ Name string }{Name: "foobar"},
+			out: concrete.NewEntry("/app/foobar", "", true),
+		},
+		{
+			in:  NewFile("/{{namespace}}/{{name}}.go", "package {{namespace}}\n\ntype {{name}} struct{}"),
+			v:   struct{ Name, Namespace string }{Name: "foobar", Namespace: "app"},
+			out: concrete.NewEntry("/app/foobar.go", "package app\n\ntype foobar struct{}", false),
+		},
+	}
 
-// 	for _, c := range cases {
-// 		e, err := c.in.Compile(root, c.v)
+	for _, c := range cases {
+		e, err := c.in.Compile(c.v)
 
-// 		if err != nil {
-// 			t.Errorf("Unexpected error %v", err)
-// 		}
+		if err != nil {
+			t.Errorf("Unexpected error %v", err)
+		}
 
-// 		if actual, expected := e, c.out; !reflect.DeepEqual(actual, expected) {
-// 			t.Errorf("Compile() returns %v, want %v", actual, expected)
-// 		}
-// 	}
-// }
+		if actual, expected := e, c.out; !reflect.DeepEqual(actual, expected) {
+			t.Errorf("Compile() returns %v, want %v", actual, expected)
+		}
+	}
+}
 
-// func Test_Entry_Compile_WhenFailedToCompilePath(t *testing.T) {
-// 	d := NewTemplateDir("/app/.scaffold/{{name}}", "/app/.scaffold")
-// 	e, err := d.Compile("/app", nil)
+func Test_Entry_Compile_WhenFailedToCompilePath(t *testing.T) {
+	d := NewDir("/app/{{name}}")
+	e, err := d.Compile(nil)
 
-// 	if err == nil {
-// 		t.Error("Should return an error")
-// 	}
+	if err == nil {
+		t.Error("Should return an error")
+	}
 
-// 	if e != nil {
-// 		t.Error("Should not return an entry")
-// 	}
-// }
+	if e != nil {
+		t.Error("Should not return an entry")
+	}
+}
 
-// func Test_Entry_Compile_WhenFailedToCompileContent(t *testing.T) {
-// 	d := NewTemplateFile("/app/.scaffold/{{name}}.go", "package {{name}", "/app/.scaffold")
-// 	e, err := d.Compile("/app", struct{ Name string }{Name: "foobar"})
+func Test_Entry_Compile_WhenFailedToCompileContent(t *testing.T) {
+	d := NewFile("/app/{{name}}.go", "package {{name}")
+	e, err := d.Compile(struct{ Name string }{Name: "foobar"})
 
-// 	if err == nil {
-// 		t.Error("Should return an error")
-// 	}
+	if err == nil {
+		t.Error("Should return an error")
+	}
 
-// 	if e != nil {
-// 		t.Error("Should not return an entry")
-// 	}
-// }
+	if e != nil {
+		t.Error("Should not return an entry")
+	}
+}

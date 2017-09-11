@@ -2,6 +2,10 @@ package template
 
 import (
 	"path/filepath"
+
+	"github.com/pkg/errors"
+
+	"github.com/izumin5210/scaffold/domain/model/scaffold/concrete"
 )
 
 // Entry represents a scaffold template entry
@@ -10,7 +14,7 @@ type Entry interface {
 	Dir() String
 	Content() String
 	IsDir() bool
-	// Compile(root string, v interface{}) (Entry, error)
+	Compile(v interface{}) (concrete.Entry, error)
 }
 
 type entry struct {
@@ -54,15 +58,14 @@ func (e *entry) Content() String {
 	return e.content
 }
 
-// func (e *entry) Compile(root string, v interface{}) (Entry, error) {
-// 	path, err := e.path.Compile(string(e.path), v)
-// 	if err != nil {
-// 		return nil, errors.Wrapf(err, "Could not compile path: %q", e.path)
-// 	}
-// 	path = strings.Replace(path, e.templateRoot, root, 1)
-// 	content, err := e.content.Compile(string(e.path), v)
-// 	if err != nil {
-// 		return nil, errors.Wrapf(err, "Could not compile content: %q", e.path)
-// 	}
-// 	return NewEntry(path, content, e.dir), nil
-// }
+func (e *entry) Compile(v interface{}) (concrete.Entry, error) {
+	path, err := e.path.Compile(string(e.path), v)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Could not compile path: %q", e.path)
+	}
+	content, err := e.content.Compile(string(e.content), v)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Could not compile content: %q", e.path)
+	}
+	return concrete.NewEntry(path, content, e.dir), nil
+}
