@@ -4,12 +4,12 @@ import (
 	"testing"
 )
 
-func Test_NewTemplateFile(t *testing.T) {
+func Test_NewFile(t *testing.T) {
 	const (
 		path    String = "/app/.scaffold/foo.go"
 		content String = "package app"
 	)
-	f := NewTemplateFile(path, content)
+	f := NewFile(path, content)
 
 	if actual, expected := f.Path(), path; actual != expected {
 		t.Errorf("Path() returns %q, want %q", actual, expected)
@@ -24,11 +24,11 @@ func Test_NewTemplateFile(t *testing.T) {
 	}
 }
 
-func Test_NewTemplateDir(t *testing.T) {
+func Test_NewDir(t *testing.T) {
 	const (
 		path String = "/app/foo.go"
 	)
-	d := NewTemplateDir(path)
+	d := NewDir(path)
 
 	if actual, expected := d.Path(), path; actual != expected {
 		t.Errorf("Path() returns %q, want %q", actual, expected)

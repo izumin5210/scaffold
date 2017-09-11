@@ -19,13 +19,13 @@ type entry struct {
 	dir     bool
 }
 
-// NewTemplateFile returns a new Entry object treated as a file
-func NewTemplateFile(path, content String) Entry {
+// NewFile returns a new Entry object treated as a file
+func NewFile(path, content String) Entry {
 	return NewEntry(path, content, false)
 }
 
-// NewTemplateDir returns a new Entry object treated as a directory
-func NewTemplateDir(path String) Entry {
+// NewDir returns a new Entry object treated as a directory
+func NewDir(path String) Entry {
 	return NewEntry(path, "", true)
 }
 
