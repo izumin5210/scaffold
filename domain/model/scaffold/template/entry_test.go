@@ -9,47 +9,47 @@ import (
 
 func Test_NewFile(t *testing.T) {
 	const (
-		path    String = "/app/.scaffold/foo.go"
-		content String = "package app"
+		path    = "/app/foo.go"
+		content = "package app"
 	)
-	f := NewFile(path, content)
+	f := NewFile(path, content).(*entry)
 
-	if actual, expected := f.Path(), path; actual != expected {
-		t.Errorf("Path() returns %q, want %q", actual, expected)
+	if actual, expected := string(f.path), path; actual != expected {
+		t.Errorf("NewFile().path is %q, want %q", actual, expected)
 	}
 
-	if actual, expected := f.Content(), content; actual != expected {
-		t.Errorf("Content() returns %q, want %q", actual, expected)
+	if actual, expected := string(f.content), content; actual != expected {
+		t.Errorf("NewFile().content is %q, want %q", actual, expected)
 	}
 
-	if actual, expected := f.IsDir(), false; actual != expected {
-		t.Errorf("IsDir() returns %t, want %t", actual, expected)
+	if actual, expected := f.dir, false; actual != expected {
+		t.Errorf("NewFile().dir is %t, want %t", actual, expected)
 	}
 }
 
 func Test_NewDir(t *testing.T) {
 	const (
-		path String = "/app/foo.go"
+		path = "/app/foo.go"
 	)
-	d := NewDir(path)
+	d := NewDir(path).(*entry)
 
-	if actual, expected := d.Path(), path; actual != expected {
-		t.Errorf("Path() returns %q, want %q", actual, expected)
+	if actual, expected := string(d.path), path; actual != expected {
+		t.Errorf("NewDir().path is %q, want %q", actual, expected)
 	}
 
-	if actual, expected := d.Content(), String(""); actual != expected {
-		t.Errorf("Content() returns %q, want %q", actual, expected)
+	if actual, expected := string(d.content), ""; actual != expected {
+		t.Errorf("NewDir().content is %q, want %q", actual, expected)
 	}
 
-	if actual, expected := d.IsDir(), true; actual != expected {
-		t.Errorf("IsDir() returns %t, want %t", actual, expected)
+	if actual, expected := d.dir, true; actual != expected {
+		t.Errorf("NewDir().dir is %t, want %t", actual, expected)
 	}
 }
 
 func Test_NewEntry(t *testing.T) {
 	cases := []struct {
-		path    String
-		content String
+		path    string
+		content string
 		dir     bool
 	}{
 		{
@@ -65,18 +65,18 @@ func Test_NewEntry(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		e := NewEntry(String(c.path), String(c.content), c.dir)
+		e := NewEntry(String(c.path), String(c.content), c.dir).(*entry)
 
-		if actual, expected := e.Path(), c.path; actual != expected {
-			t.Errorf("Path() returns %q, want %q", actual, expected)
+		if actual, expected := string(e.path), c.path; actual != expected {
+			t.Errorf("NewEntry().path is %q, want %q", actual, expected)
 		}
 
-		if actual, expected := e.Content(), c.content; actual != expected {
-			t.Errorf("Content() returns %q, want %q", actual, expected)
+		if actual, expected := string(e.content), c.content; actual != expected {
+			t.Errorf("NewEntry().content is %q, want %q", actual, expected)
 		}
 
-		if actual, expected := e.IsDir(), c.dir; actual != expected {
-			t.Errorf("IsDir() returns %t, want %t", actual, expected)
+		if actual, expected := e.dir, c.dir; actual != expected {
+			t.Errorf("NewEntry().dir is %t, want %t", actual, expected)
 		}
 	}
 }

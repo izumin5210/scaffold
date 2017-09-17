@@ -1,8 +1,6 @@
 package template
 
 import (
-	"path/filepath"
-
 	"github.com/pkg/errors"
 
 	"github.com/izumin5210/scaffold/domain/model/scaffold/concrete"
@@ -10,10 +8,6 @@ import (
 
 // Entry represents a scaffold template entry
 type Entry interface {
-	Path() String
-	Dir() String
-	Content() String
-	IsDir() bool
 	Compile(v interface{}) (concrete.Entry, error)
 }
 
@@ -40,22 +34,6 @@ func NewEntry(path, content String, dir bool) Entry {
 		content: content,
 		dir:     dir,
 	}
-}
-
-func (e *entry) Path() String {
-	return e.path
-}
-
-func (e *entry) IsDir() bool {
-	return e.dir
-}
-
-func (e *entry) Dir() String {
-	return String(filepath.Dir(string(e.Path())))
-}
-
-func (e *entry) Content() String {
-	return e.content
 }
 
 func (e *entry) Compile(v interface{}) (concrete.Entry, error) {
