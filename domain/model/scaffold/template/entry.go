@@ -12,23 +12,23 @@ type Entry interface {
 }
 
 type entry struct {
-	path    String
-	content String
+	path    string
+	content string
 	dir     bool
 }
 
 // NewFile returns a new Entry object treated as a file
-func NewFile(path, content String) Entry {
+func NewFile(path, content string) Entry {
 	return NewEntry(path, content, false)
 }
 
 // NewDir returns a new Entry object treated as a directory
-func NewDir(path String) Entry {
+func NewDir(path string) Entry {
 	return NewEntry(path, "", true)
 }
 
 // NewEntry returns a new Entry object
-func NewEntry(path, content String, dir bool) Entry {
+func NewEntry(path, content string, dir bool) Entry {
 	return &entry{
 		path:    path,
 		content: content,

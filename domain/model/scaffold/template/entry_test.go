@@ -14,11 +14,11 @@ func Test_NewFile(t *testing.T) {
 	)
 	f := NewFile(path, content).(*entry)
 
-	if actual, expected := string(f.path), path; actual != expected {
+	if actual, expected := f.path, path; actual != expected {
 		t.Errorf("NewFile().path is %q, want %q", actual, expected)
 	}
 
-	if actual, expected := string(f.content), content; actual != expected {
+	if actual, expected := f.content, content; actual != expected {
 		t.Errorf("NewFile().content is %q, want %q", actual, expected)
 	}
 
@@ -33,11 +33,11 @@ func Test_NewDir(t *testing.T) {
 	)
 	d := NewDir(path).(*entry)
 
-	if actual, expected := string(d.path), path; actual != expected {
+	if actual, expected := d.path, path; actual != expected {
 		t.Errorf("NewDir().path is %q, want %q", actual, expected)
 	}
 
-	if actual, expected := string(d.content), ""; actual != expected {
+	if actual, expected := d.content, ""; actual != expected {
 		t.Errorf("NewDir().content is %q, want %q", actual, expected)
 	}
 
@@ -65,13 +65,13 @@ func Test_NewEntry(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		e := NewEntry(String(c.path), String(c.content), c.dir).(*entry)
+		e := NewEntry(c.path, c.content, c.dir).(*entry)
 
-		if actual, expected := string(e.path), c.path; actual != expected {
+		if actual, expected := e.path, c.path; actual != expected {
 			t.Errorf("NewEntry().path is %q, want %q", actual, expected)
 		}
 
-		if actual, expected := string(e.content), c.content; actual != expected {
+		if actual, expected := e.content, c.content; actual != expected {
 			t.Errorf("NewEntry().content is %q, want %q", actual, expected)
 		}
 
