@@ -37,11 +37,11 @@ func NewEntry(path, content String, dir bool) Entry {
 }
 
 func (e *entry) Compile(v interface{}) (concrete.Entry, error) {
-	path, err := e.path.Compile(string(e.path), v)
+	path, err := String(e.path).Compile(v)
 	if err != nil {
 		return nil, errors.Wrapf(err, "Could not compile path: %q", e.path)
 	}
-	content, err := e.content.Compile(string(e.content), v)
+	content, err := String(e.content).Compile(v)
 	if err != nil {
 		return nil, errors.Wrapf(err, "Could not compile content: %q", e.path)
 	}

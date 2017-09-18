@@ -83,7 +83,7 @@ func Test_String_Compile(t *testing.T) {
 	}
 
 	for _, c := range testcases {
-		actual, err := c.text.Compile("template", c.value)
+		actual, err := c.text.Compile(c.value)
 
 		if err != nil {
 			t.Errorf("Unexpected error %v", err)
@@ -97,7 +97,7 @@ func Test_String_Compile(t *testing.T) {
 
 func Test_String_Compile_WithInvalidString(t *testing.T) {
 	var ts String = "{{name}"
-	s, err := ts.Compile("template", struct{ Name string }{Name: "foobar"})
+	s, err := ts.Compile(struct{ Name string }{Name: "foobar"})
 
 	if actual, expected := s, string(ts); actual != expected {
 		t.Errorf("Compile() returns %s, want %s", actual, expected)
@@ -110,7 +110,7 @@ func Test_String_Compile_WithInvalidString(t *testing.T) {
 
 func Test_String_Compile_WithPrivateFields(t *testing.T) {
 	var ts String = "package {{namespace}}\n\n type {{name}} struct{}"
-	s, err := ts.Compile("template", struct{ Name, namespace string }{Name: "foobar", namespace: "baz"})
+	s, err := ts.Compile(struct{ Name, namespace string }{Name: "foobar", namespace: "baz"})
 
 	if actual, expected := s, string(ts); actual != expected {
 		t.Errorf("Compile() returns %s, want %s", actual, expected)
@@ -123,7 +123,7 @@ func Test_String_Compile_WithPrivateFields(t *testing.T) {
 
 func Test_String_Compile_WithUnsupportedTypeValue(t *testing.T) {
 	var ts String = "{{name}}"
-	s, err := ts.Compile("template", struct{ Name int }{Name: 1})
+	s, err := ts.Compile(struct{ Name int }{Name: 1})
 
 	if actual, expected := s, string(ts); actual != expected {
 		t.Errorf("Compile() returns %s, want %s", actual, expected)
@@ -136,7 +136,7 @@ func Test_String_Compile_WithUnsupportedTypeValue(t *testing.T) {
 
 func Test_String_Compile_WithNotStructObject(t *testing.T) {
 	var ts String = "foobar"
-	s, err := ts.Compile("template", 1)
+	s, err := ts.Compile(1)
 
 	if actual, expected := s, string(ts); actual != expected {
 		t.Errorf("Compile() returns %s, want %s", actual, expected)
@@ -149,7 +149,7 @@ func Test_String_Compile_WithNotStructObject(t *testing.T) {
 
 func Test_String_Compile_WithNoGivenValue(t *testing.T) {
 	var ts String = "{{name}}"
-	s, err := ts.Compile("template", struct{}{})
+	s, err := ts.Compile(struct{}{})
 
 	if actual, expected := s, string(ts); actual != expected {
 		t.Errorf("Compile() returns %s, want %s", actual, expected)

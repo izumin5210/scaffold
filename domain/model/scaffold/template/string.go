@@ -16,21 +16,22 @@ import (
 type String string
 
 // Compile generates textual output applied a parsed template to the specified values
-func (s String) Compile(name string, v interface{}) (string, error) {
-	tmpl := gotemplate.New(name)
-	fmap, err := s.createFuncMap(v)
+func (ts String) Compile(v interface{}) (string, error) {
+	s := string(ts)
+	tmpl := gotemplate.New(s)
+	fmap, err := ts.createFuncMap(v)
 	if err != nil {
-		return string(s), err
+		return s, errors.Wrapf(err, "Failed to create functions")
 	}
 	tmpl.Funcs(fmap)
-	tmpl, err = tmpl.Parse(string(s))
+	tmpl, err = tmpl.Parse(s)
 	if err != nil {
-		return string(s), errors.Wrapf(err, "Failed to parse a template: %q", string(s))
+		return s, errors.Wrapf(err, "Failed to parse a template: %q", s)
 	}
 	buf := &bytes.Buffer{}
 	err = tmpl.Execute(buf, struct{}{})
 	if err != nil {
-		return string(s), errors.Wrapf(err, "Failed to execute a template: %q", string(s))
+		return s, errors.Wrapf(err, "Failed to execute a template: %q", s)
 	}
 	return string(buf.Bytes()), nil
 }
@@ -49,7 +50,7 @@ var defaultFuncMap = gotemplate.FuncMap{
 	"firstChild":  func(s string) string { return s[:1] },
 }
 
-func (s String) createFuncMap(v interface{}) (gotemplate.FuncMap, error) {
+func (ts String) createFuncMap(v interface{}) (gotemplate.FuncMap, error) {
 	fmap := gotemplate.FuncMap{}
 
 	if v != nil {
